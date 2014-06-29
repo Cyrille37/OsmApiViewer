@@ -5,7 +5,6 @@
 		<meta charset="utf-8"/>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 		<link rel="stylesheet" href="/css/bootstrap.min.css">
-		<link rel="stylesheet" href="/css/bootstrap-tree.css">
 		<link href="css/leaflet.css" rel="stylesheet" media="screen"/>
 		<!--[if lte IE 8]>
 			<link rel="stylesheet" href="js/leaflet.ie.css" />
@@ -18,6 +17,7 @@
 				float: left;
 			}
 		</style>
+		<link rel="stylesheet" href="/css/osmApiViewer.css">
 	</head>
 	<body>
 
@@ -27,10 +27,10 @@
 				<span><i class="glyphicon glyphicon-folder-open"></i> &nbsp; Categorie 1</span>
 				<ul>
 					<li>
-						<a href="javascript:void(0)"><span><i class="glyphicon glyphicon-ok-circle"></i> 8.00</span> &ndash; data 1...</a>
+						<a href="javascript:void(0)"><i class="glyphicon glyphicon-ok-circle"></i> data data data 1</a>
 					</li>
-					<li>
-						<a href="javascript:void(0)"><span><i class="glyphicon glyphicon-ok-circle"></i> 8.00</span> &ndash; data 2...</a>
+					<li data-datasource="xapi" data-dataquery="">
+						<a href="javascript:void(0)"><i class="glyphicon glyphicon-ok-circle"></i> data 2...</a>
 					</li>
 				</ul>
 			</li>
@@ -41,11 +41,47 @@
 	<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
 	<script>window.jQuery || document.write('<script src="js/jquery-1.11.0.min.js"><\/script>')</script>
 	<!--script src="js/bootstrap.min.js"></script-->
-	<script src="js/bootstrap-tree.js"></script>
 	<script src="js/leaflet.js"></script>
 
 	<script src="js/OsmApiViewer.js"></script>
 	<script>
+
+		$(document).ready(function() {
+
+			// Plier/déplier les catégories
+			$('.tree').find('li:has(ul)').find(' > span').attr('title', 'Replier la catégorie').on('click', function (e) {
+				var children = $(this).parent('li').find(' > ul > li');
+				if (children.is(':visible')) {
+					children.hide('fast');
+					$(this).attr('title', 'Déplier la catégorie').find(' > i')
+						.addClass('glyphicon-folder-close').removeClass('glyphicon-folder-open');
+				}
+				else {
+					children.show('fast');
+					$(this).attr('title', 'Replier la catégorie').find(' > i')
+						.addClass('glyphicon-folder-open').removeClass('glyphicon-folder-close');
+				}
+				e.stopPropagation();
+			});
+
+			// Sélectionner/désélectionner les données
+			$('.tree').find('li:has(ul)').find(' > ul > li').attr('title', 'Sélectionner ces données').on('click', function (e) {
+				if( $(this).attr('selected') )
+				{
+					$(this).attr('selected',null).find('i')
+						.addClass('glyphicon-ok-circle').removeClass('glyphicon-ok-sign');
+				}
+				else
+				{
+					console.log( 'data-datasource: '+$(this).attr('data-datasource'));
+					console.log( 'data-dataquery: '+$(this).attr('data-dataquery'));
+
+					$(this).attr('selected','1').find('i')
+						.addClass('glyphicon-ok-sign').removeClass('glyphicon-ok-circle');
+				}
+			});
+
+		});
 
 		var oav ;
 
