@@ -29,7 +29,7 @@
 					<li>
 						<a href="javascript:void(0)"><i class="glyphicon glyphicon-ok-circle"></i> data data data 1</a>
 					</li>
-					<li data-datasource="xapi" data-dataquery="">
+					<li data-queryType="xapi" data-query="node[amenity=pub]">
 						<a href="javascript:void(0)"><i class="glyphicon glyphicon-ok-circle"></i> data 2...</a>
 					</li>
 				</ul>
@@ -45,52 +45,11 @@
 
 	<script src="js/OsmApiViewer.js"></script>
 	<script>
-
-		$(document).ready(function() {
-
-			// Plier/déplier les catégories
-			$('.tree').find('li:has(ul)').find(' > span').attr('title', 'Replier la catégorie').on('click', function (e) {
-				var children = $(this).parent('li').find(' > ul > li');
-				if (children.is(':visible')) {
-					children.hide('fast');
-					$(this).attr('title', 'Déplier la catégorie').find(' > i')
-						.addClass('glyphicon-folder-close').removeClass('glyphicon-folder-open');
-				}
-				else {
-					children.show('fast');
-					$(this).attr('title', 'Replier la catégorie').find(' > i')
-						.addClass('glyphicon-folder-open').removeClass('glyphicon-folder-close');
-				}
-				e.stopPropagation();
-			});
-
-			// Sélectionner/désélectionner les données
-			$('.tree').find('li:has(ul)').find(' > ul > li').attr('title', 'Sélectionner ces données').on('click', function (e) {
-				if( $(this).attr('selected') )
-				{
-					$(this).attr('selected',null).find('i')
-						.addClass('glyphicon-ok-circle').removeClass('glyphicon-ok-sign');
-				}
-				else
-				{
-					console.log( 'data-datasource: '+$(this).attr('data-datasource'));
-					console.log( 'data-dataquery: '+$(this).attr('data-dataquery'));
-
-					$(this).attr('selected','1').find('i')
-						.addClass('glyphicon-ok-sign').removeClass('glyphicon-ok-circle');
-				}
-			});
-
-		});
-
 		var oav ;
-
 		$(function() {
-
 			oav = new OsmApiViewer( {
 				mapId: 'map'
 			});
-
 		});
 	</script>
 	</body>
