@@ -26,11 +26,11 @@
 			<li>
 				<span><i class="glyphicon glyphicon-folder-open"></i> &nbsp; Categorie 1</span>
 				<ul>
-					<li>
-						<a href="javascript:void(0)"><i class="glyphicon glyphicon-ok-circle"></i> data data data 1</a>
+					<li data-queryType="xapi" data-query="node[crossing=*]">
+						<a href="javascript:void(0)"><i class="glyphicon glyphicon-ok-circle"></i> Passages piétons</a>
 					</li>
-					<li data-queryType="xapi" data-query="node[amenity=pub]">
-						<a href="javascript:void(0)"><i class="glyphicon glyphicon-ok-circle"></i> data 2...</a>
+					<li data-queryType="xapi" data-query="node[amenity=bench]">
+						<a href="javascript:void(0)"><i class="glyphicon glyphicon-ok-circle"></i> Bancs</a>
 					</li>
 				</ul>
 			</li>
@@ -43,6 +43,7 @@
 	<!--script src="js/bootstrap.min.js"></script-->
 	<script src="js/leaflet.js"></script>
 
+	<script src="js/osmtogeojson.js"></script>
 	<script src="js/OsmApiViewer.js"></script>
 	<script>
 		var oav ;
@@ -51,6 +52,7 @@
 				mapId: 'map'
 			});
 		});
+
 	</script>
 	</body>
 </html>

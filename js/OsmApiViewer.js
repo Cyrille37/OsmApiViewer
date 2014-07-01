@@ -43,8 +43,8 @@ $(function() {
 		}
 		else
 		{
-			log( 'data-queryType: '+$(this).attr('data-queryType'));
-			log( 'data-query: '+$(this).attr('data-query'));
+			//log( 'data-queryType: '+$(this).attr('data-queryType'));
+			//log( 'data-query: '+$(this).attr('data-query'));
 
 			$(this).attr('selected','1').find('i')
 				.addClass('glyphicon-ok-sign').removeClass('glyphicon-ok-circle');
@@ -98,7 +98,7 @@ function OsmApiViewer ( options ) {
 	{
 		log('query(): '+queryType+', '+query);
 		var b = this.map.getBounds();
-		logo( b );
+		//logo( b );
 		var bb = b.getWest()+','+b.getSouth()+','+b.getEast()+','+b.getNorth() ;
 		url = 'proxy.php?'
 			+'qt='+encodeURIComponent(queryType)
@@ -113,6 +113,8 @@ function OsmApiViewer ( options ) {
 			log('ajax done');
 			log(statusStr);
 			log('data: '+data);
+			geojson = osmtogeojson(data);
+			log('geojson: '+geojson);
 		})
 		.fail(function(jqXHR, textStatus, errorThrown) {
 			log('ajax fail');
