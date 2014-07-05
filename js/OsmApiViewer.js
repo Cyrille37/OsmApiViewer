@@ -40,6 +40,7 @@ $(function() {
 		{
 			$(this).attr('selected',null).find('i')
 				.addClass('glyphicon-ok-circle').removeClass('glyphicon-ok-sign');
+			oav.remove( $(this).attr('data-queryType'), $(this).attr('data-query') );
 		}
 		else
 		{
@@ -49,7 +50,7 @@ $(function() {
 			$(this).attr('selected','1').find('i')
 				.addClass('glyphicon-ok-sign').removeClass('glyphicon-ok-circle');
 			
-			oav.query($(this).attr('data-queryType'),$(this).attr('data-query'));
+			oav.query( $(this).attr('data-queryType'), $(this).attr('data-query') );
 		}
 	});
 
@@ -61,6 +62,8 @@ $(function() {
 function OsmApiViewer ( options ) {
 
 	this.mapId = options.mapId ;
+	this.map = null ;
+	this.queries = {} ;
 
 	// used in event context
 	var self = this;
@@ -94,9 +97,24 @@ function OsmApiViewer ( options ) {
 		//console.log('map moveend');
 	});
 
+	this.remove = function(queryType,query)
+	{
+		log('remove(): '+queryType+', '+query);
+
+		var qid = md5(queryType+query);
+		logo( this.queries.qid );
+
+		self.queries.qid.markers.removeLayer(self.queries.qid.geoJsonLayer);
+		self.map.removeLayer(self.queries.qid.markers);
+	}
+
 	this.query = function(queryType,query)
 	{
 		log('query(): '+queryType+', '+query);
+
+		var qid = md5(queryType+query);
+		this.queries.qid = { 'qid': qid, 'queryType': queryType, 'query': query };
+
 		var b = this.map.getBounds();
 		//logo( b );
 		var bb = b.getWest()+','+b.getSouth()+','+b.getEast()+','+b.getNorth() ;
@@ -125,10 +143,13 @@ function OsmApiViewer ( options ) {
 					layer.bindPopup(feature.properties.description);
 				}
 			}); //.addTo(self.map);
-			
+
 			var markers = new L.MarkerClusterGroup();
 			markers.addLayer(geoJsonLayer);
 			self.map.addLayer(markers);
+			
+			self.queries.qid.markers = markers ;
+			self.queries.qid.geoJsonLayer = geoJsonLayer ;
 
 		})
 		.fail(function(jqXHR, textStatus, errorThrown) {
@@ -137,7 +158,6 @@ function OsmApiViewer ( options ) {
 		.always(function(data_jqXHR, textStatus, jqXHR_errorThrown) {
 			log('ajax always');
 		});
-
 
 	}
 
