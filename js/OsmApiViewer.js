@@ -128,7 +128,8 @@ function OsmApiViewer ( options ) {
 
 		if( self.queries[qid].markers != null )
 		{
-			self.queries[qid].markers.removeLayer(self.queries[qid].geoJsonLayer);
+			//self.queries[qid].markers.removeLayer(self.queries[qid].geoJsonLayer);
+			self.queries[qid].markers.clearLayers();
 			self.map.removeLayer(self.queries[qid].markers);
 			self.queries[qid].markers = null ;
 			self.queries[qid].geoJsonLayer = null ;
@@ -184,7 +185,26 @@ function OsmApiViewer ( options ) {
 				self.remove(queryType,query);
 			}
 
-			var markers = new L.MarkerClusterGroup();
+			var markers = new L.MarkerClusterGroup({
+
+				'iconCreateFunction': function(cluster) {
+					var childCount = cluster.getChildCount();
+					var c = ' marker-cluster-';
+					if (childCount < 10) {
+						c += 'small';
+					} else if (childCount < 100) {
+						c += 'medium';
+					} else {
+						c += 'large';
+					}
+					return new L.DivIcon({
+						html: '<div><span>' + childCount + '</span></div>',
+						className: 'marker-cluster' + c,
+						iconSize: new L.Point(40, 40) });
+				}
+
+			});
+
 			markers.addLayer(geoJsonLayer);
 			self.map.addLayer(markers);
 
