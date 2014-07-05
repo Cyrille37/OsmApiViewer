@@ -36,6 +36,10 @@ $(function() {
 
 	// Sélectionner/désélectionner les données
 	$('.tree').find('li:has(ul)').find(' > ul > li').attr('title', 'Sélectionner ces données').on('click', function (e) {
+		
+		if( $(this).hasClass('querying') == true )
+			return ;
+
 		if( $(this).attr('selected') )
 		{
 			$(this).attr('selected',null).find('i')
@@ -44,13 +48,13 @@ $(function() {
 		}
 		else
 		{
-			//log( 'data-queryType: '+$(this).attr('data-queryType'));
-			//log( 'data-query: '+$(this).attr('data-query'));
-
 			$(this).attr('selected','1').find('i')
 				.addClass('glyphicon-ok-sign').removeClass('glyphicon-ok-circle');
-			
-			oav.query( $(this).attr('data-queryType'), $(this).attr('data-query') );
+
+			$(this).addClass('querying');
+
+			oav.query( $(this).attr('data-queryType'), $(this).attr('data-query'), $(this) );
+
 		}
 	});
 
@@ -63,7 +67,7 @@ function OsmApiViewer ( options ) {
 
 	this.mapId = options.mapId ;
 	this.map = null ;
-	this.queries = {} ;
+	this.queries = [] ;
 
 	// used in event context
 	var self = this;
@@ -93,27 +97,60 @@ function OsmApiViewer ( options ) {
 	/**
 	 * Event occured after drag or zoom
 	 */
-	this.map.on('moveend', function(e) {
-		//console.log('map moveend');
+	this.map.on('moveend', function(e)
+	{
+		console.log('map.on(moveend)');
+
+		//var oo = $('.tree').find('li:has(ul)').find(' > ul > li');
+		//.attr('selected')
+
+		$.each($('.tree').find('li:has(ul)').find(' > ul > li'), function( i, o ) {
+			var o = $(o);
+			if( o.attr('selected') )
+			{
+				var qt = o.attr('data-queryType');
+				var q = o.attr('data-query');
+				log('got one selected');
+				self.remove( qt, q );
+				self.query( qt, q );
+			}
+		});
+
 	});
 
 	this.remove = function(queryType,query)
 	{
 		log('remove(): '+queryType+', '+query);
-
 		var qid = md5(queryType+query);
-		logo( this.queries.qid );
+		//logo( this.queries[qid] );
+		if( self.queries[qid] == undefined )
+			return ;
 
-		self.queries.qid.markers.removeLayer(self.queries.qid.geoJsonLayer);
-		self.map.removeLayer(self.queries.qid.markers);
+		if( self.queries[qid].markers != null )
+		{
+			self.queries[qid].markers.removeLayer(self.queries[qid].geoJsonLayer);
+			self.map.removeLayer(self.queries[qid].markers);
+			self.queries[qid].markers = null ;
+			self.queries[qid].geoJsonLayer = null ;
+		}
 	}
 
-	this.query = function(queryType,query)
+	this.query = function( queryType, query, ihmObject )
 	{
 		log('query(): '+queryType+', '+query);
 
 		var qid = md5(queryType+query);
-		this.queries.qid = { 'qid': qid, 'queryType': queryType, 'query': query };
+		if( this.queries[qid] != undefined )
+		{
+			if( this.queries[qid].querying )
+			{
+				log('already querying...');
+				return ;
+			}
+		} else {
+			this.queries[qid] = { 'qid': qid, 'queryType': queryType, 'query': query };
+		}
+		this.queries[qid].querying = true ;
 
 		var b = this.map.getBounds();
 		//logo( b );
@@ -129,11 +166,9 @@ function OsmApiViewer ( options ) {
 			dataType: 'xml'
 		})
 		.done(function(data, statusStr, jqXHR) {
-			log('ajax done');
-			log(statusStr);
-			log('data: '+data);
+
+			log('query.done(): '+queryType+', '+query);
 			geojson = osmtogeojson(data);
-			log('geojson: '+geojson);
 
 			var geoJsonLayer = L.geoJson(geojson, {
 				style: function (feature) {
@@ -144,19 +179,27 @@ function OsmApiViewer ( options ) {
 				}
 			}); //.addTo(self.map);
 
+			if( self.queries[qid].markers != null )
+			{
+				self.remove(queryType,query);
+			}
+
 			var markers = new L.MarkerClusterGroup();
 			markers.addLayer(geoJsonLayer);
 			self.map.addLayer(markers);
-			
-			self.queries.qid.markers = markers ;
-			self.queries.qid.geoJsonLayer = geoJsonLayer ;
+
+			self.queries[qid].markers = markers ;
+			self.queries[qid].geoJsonLayer = geoJsonLayer ;
 
 		})
 		.fail(function(jqXHR, textStatus, errorThrown) {
-			log('ajax fail');
+			log('query.fail(): '+queryType+', '+query);
 		})
 		.always(function(data_jqXHR, textStatus, jqXHR_errorThrown) {
-			log('ajax always');
+			log('query.always(): '+queryType+', '+query);
+			self.queries[qid].querying = false ;
+			if( ihmObject != undefined )
+				ihmObject.removeClass('querying');
 		});
 
 	}

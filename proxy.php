@@ -1,8 +1,15 @@
 <?php
 
+$xapi_providers = array(
+'http://www.overpass-api.de/api/xapi?',
+'http://api.openstreetmap.fr/xapi?',
+'http://oapi-fr.openstreetmap.fr/xapi?',
+'http://open.mapquestapi.com/xapi/api/0.6/'
+);
+
 //echo 'ok';
 $settings = array(
-	'xapi_url' => 'http://open.mapquestapi.com/xapi/api/0.6',
+	'xapi_url' => $xapi_providers[1],
 	'oapi_url' => ''
 );
 
@@ -27,8 +34,8 @@ function queryXapi($settings, $bbox, $query)
 {
 	error_log( __FUNCTION__.', bbox: '.$bbox.', query: '.$query );
 
-	// http://open.mapquestapi.com/xapi/api/0.6/node[amenity=pub][bbox=-77.041579,38.885851,-77.007247,38.900881]
-	$url = $settings['xapi_url'].'/'.urlencode($query.'[bbox='.$bbox.']') ;
+	// node[amenity=pub][bbox=-77.041579,38.885851,-77.007247,38.900881]
+	$url = $settings['xapi_url'].urlencode($query.'[bbox='.$bbox.']') ;
 	$opts = array(
 	  'http'=>array(
 		'method'=>'GET',
