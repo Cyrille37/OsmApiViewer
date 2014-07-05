@@ -79,7 +79,7 @@ function OsmApiViewer ( options ) {
 		});
 		this.map.addLayer(osmFr);
 
-		this.map.setView([47.365, 0.633], 10);
+		this.map.setView([47.39251, 0.68698], 19);
 
 	}
 
@@ -107,7 +107,8 @@ function OsmApiViewer ( options ) {
 		var jqxhr = $.ajax(
 		{
 			url: url,
-			type: 'GET'
+			type: 'GET',
+			dataType: 'xml'
 		})
 		.done(function(data, statusStr, jqXHR) {
 			log('ajax done');
@@ -115,6 +116,20 @@ function OsmApiViewer ( options ) {
 			log('data: '+data);
 			geojson = osmtogeojson(data);
 			log('geojson: '+geojson);
+
+			var geoJsonLayer = L.geoJson(geojson, {
+				style: function (feature) {
+					return {color: feature.properties.color};
+				},
+				onEachFeature: function (feature, layer) {
+					layer.bindPopup(feature.properties.description);
+				}
+			}); //.addTo(self.map);
+			
+			var markers = new L.MarkerClusterGroup();
+			markers.addLayer(geoJsonLayer);
+			self.map.addLayer(markers);
+
 		})
 		.fail(function(jqXHR, textStatus, errorThrown) {
 			log('ajax fail');
