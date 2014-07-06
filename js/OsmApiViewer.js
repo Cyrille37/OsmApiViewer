@@ -18,8 +18,10 @@ function logo(obj)
  */
 $(function() {
 
+	var categories = $('.tree').find('li:has(ul)');
+	
 	// Plier/déplier les catégories
-	$('.tree').find('li:has(ul)').find(' > span').attr('title', 'Replier la catégorie').on('click', function (e) {
+	categories.find(' > span').attr('title', 'Replier la catégorie').on('click', function (e) {
 		var children = $(this).parent('li').find(' > ul > li');
 		if (children.is(':visible')) {
 			children.hide('fast');
@@ -34,28 +36,36 @@ $(function() {
 		e.stopPropagation();
 	});
 
-	// Sélectionner/désélectionner les données
-	$('.tree').find('li:has(ul)').find(' > ul > li').attr('title', 'Sélectionner ces données').on('click', function (e) {
-		
-		if( $(this).hasClass('querying') == true )
+	// Sélectionner/désélectionner les données et lancer la requête ou supprimer le layer de données
+	categories.find(' > ul > li a.oav-dataselect').attr('title', 'Ajouter ces données').on('click', function (e) {
+
+		var p = $(this).parent('li') ;
+
+		if( p.hasClass('querying') == true )
 			return ;
 
-		if( $(this).attr('selected') )
+		if( p.attr('selected') )
 		{
-			$(this).attr('selected',null).find('i')
+			p.attr('selected',null);
+			$(this).attr('title', 'Ajouter ces données').find('i')
 				.addClass('glyphicon-ok-circle').removeClass('glyphicon-ok-sign');
-			oav.remove( $(this).attr('data-queryType'), $(this).attr('data-query') );
+			// remove data layer
+			oav.remove( p.attr('data-queryType'), p.attr('data-query') );
 		}
 		else
 		{
-			$(this).attr('selected','1').find('i')
+			p.attr('selected',true).addClass('querying');
+			$(this).attr('title', 'Supprimer ces données').find('i')
 				.addClass('glyphicon-ok-sign').removeClass('glyphicon-ok-circle');
 
-			$(this).addClass('querying');
-
-			oav.query( $(this).attr('data-queryType'), $(this).attr('data-query'), $(this) );
+			// get data
+			oav.query( p.attr('data-queryType'), p.attr('data-query'), p, 'querying' );
 
 		}
+	});
+
+	// paramètres des données
+	categories.find(' > ul > li a.oav-datasettings').attr('title', 'Configurer ce jeu de données').on('click', function (e) {
 	});
 
 });
@@ -136,7 +146,7 @@ function OsmApiViewer ( options ) {
 		}
 	}
 
-	this.query = function( queryType, query, ihmObject )
+	this.query = function( queryType, query, ihmObject, ihmClass2Remove )
 	{
 		log('query(): '+queryType+', '+query);
 
@@ -172,10 +182,11 @@ function OsmApiViewer ( options ) {
 			geojson = osmtogeojson(data);
 
 			var geoJsonLayer = L.geoJson(geojson, {
-				style: function (feature) {
-					return {color: feature.properties.color};
+				'style': function (feature) {
+					//logo(feature);
+					return {color: '#00FF00' /*feature.properties.color*/};
 				},
-				onEachFeature: function (feature, layer) {
+				'onEachFeature': function (feature, layer) {
 					layer.bindPopup(feature.properties.description);
 				}
 			}); //.addTo(self.map);
@@ -219,7 +230,7 @@ function OsmApiViewer ( options ) {
 			log('query.always(): '+queryType+', '+query);
 			self.queries[qid].querying = false ;
 			if( ihmObject != undefined )
-				ihmObject.removeClass('querying');
+				ihmObject.removeClass( ihmClass2Remove );
 		});
 
 	}
