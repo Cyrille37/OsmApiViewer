@@ -4,7 +4,8 @@
 		<title>OsmApiViewer</title>
 		<meta charset="utf-8"/>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-		<link rel="stylesheet" href="/css/bootstrap.min.css">
+		<link href="/css/bootstrap.min.css" rel="stylesheet">
+		<link href="/css/bootstrap-theme.min.css" rel="stylesheet">
 		<link href="css/leaflet.css" rel="stylesheet" media="screen"/>
 		<!--[if lte IE 8]>
 			<link rel="stylesheet" href="js/leaflet.ie.css" />
@@ -46,11 +47,44 @@
 			</li>
 		</ul>
 	</div>
+
 	<div id="map"></div>
+
+	<div id="popover-content" style="display: none" >
+		<div class="container" style="margin: 25px; ">
+		<div class="row" style="padding-top: 240px;">
+			<label id="sample">
+				<form id="mainForm" name="mainForm" method="post" action="">
+					<p>
+						<label>Name :</label>
+						<input type="text" id="txtName" name="txtName" />
+					</p>
+					<p>
+						<label>Address 1 :</label>
+						<input type="text" id="txtAddress" name="txtAddress" />
+					</p>
+					<p>
+						<label>City :</label>
+						<input type="text" id="txtCity" name="txtCity" />
+					</p>
+					<p>
+						<input type="submit" name="Submit" value="Submit" />
+					</p>
+				</form>
+
+			</label>
+		</div>
+		</div> 
+	</div>
+	<a href="#" style="margin: 40px 40px;" class="btn btn-large btn-primary"
+	rel="popover"
+	data-content=""
+	data-placement="right"
+	data-original-title="Fill in form">Open form</a>
 
 	<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
 	<script>window.jQuery || document.write('<script src="js/jquery-1.11.0.min.js"><\/script>')</script>
-	<!--script src="js/bootstrap.min.js"></script-->
+	<script src="js/bootstrap.min.js"></script>
 	<script src="js/leaflet.js"></script>
 	<script src="js/leaflet.markercluster.js"></script>
 
@@ -64,6 +98,17 @@
 				mapId: 'map'
 			});
 		});
+
+		$('a.oav-datasettings').popover({
+			html: 'true',
+			placement: 'right',
+			container: 'body',
+			content : function() {
+				logo( this );
+				return $('#popover-content').html();
+			}
+		})
+
 	</script>
 	</body>
 </html>
