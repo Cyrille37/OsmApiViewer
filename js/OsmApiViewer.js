@@ -22,6 +22,7 @@ $(function() {
 	
 	// Plier/déplier les catégories
 	categories.find(' > span').attr('title', 'Replier la catégorie').on('click', function (e) {
+
 		var children = $(this).parent('li').find(' > ul > li');
 		if (children.is(':visible')) {
 			children.hide('fast');
@@ -65,8 +66,8 @@ $(function() {
 	});
 
 	// paramètres des données
-	categories.find(' > ul > li a.oav-datasettings').attr('title', 'Configurer ce jeu de données').on('click', function (e) {
-	});
+	//categories.find(' > ul > li a.oav-datasettings').attr('title', 'Configurer ce jeu de données').on('click', function (e) {
+	//});
 
 });
 
