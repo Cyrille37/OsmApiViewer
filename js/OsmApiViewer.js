@@ -97,7 +97,7 @@ function OsmApiViewer ( options ) {
 		});
 		this.map.addLayer(osmFr);
 
-		this.map.setView([47.39251, 0.68698], 19);
+		this.map.setView([47.39251, 0.68698], 18);
 
 	}
 

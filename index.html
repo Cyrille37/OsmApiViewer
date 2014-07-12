@@ -7,6 +7,9 @@
 
 		<link href="/css/bootstrap.min.css" rel="stylesheet">
 		<link href="/css/bootstrap-theme.min.css" rel="stylesheet">
+		<link href="/css/bootstrap-colorpicker.min.css" rel="stylesheet">
+		<link href="/css/bootstrap-picker.min.css" rel="stylesheet">
+
 		<link href="css/leaflet.css" rel="stylesheet" media="screen"/>
 		<!--[if lte IE 8]>
 			<link rel="stylesheet" href="js/leaflet.ie.css" />
@@ -50,8 +53,15 @@
 		<div >
 			<form name="dataSettingsForm" role="form" method="post" action="">
 				<div class="form-group" >
-						<label for="dataSettingName">Nom :</label>
-						<input type="text" id="dataSettingName" name="dataSettingName" class="form-control" />
+					<label for="settingName">Nom :</label>
+					<input type="text" id="settingName" name="settingName" class="form-control" />
+					<label for="settingClusterColor">Couleur des clusters :</label>
+					<div class="input-group colorpicker">
+						<input type="text" id="settingClusterColor" name="settingClusterColor" value="" class="form-control" />
+						<span class="input-group-addon"><i></i></span>
+					</div>
+					<label for="settingIcon">Icones :</label>
+					<input type="text" id="settingIcon" name="settingIcon" class="form-control" />
 				</div>
 				<div class="form-group" >
 					<label for="dataSettingQueryType">Type de requête :</label>
@@ -74,6 +84,8 @@
 	<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
 	<script>window.jQuery || document.write('<script src="js/jquery-1.11.0.min.js"><\/script>')</script>
 	<script src="js/bootstrap.min.js"></script>
+	<script src="js/bootstrap-colorpicker.min.js"></script>
+	<script src="js/bootstrap-picker.min.js"></script>
 	<script src="js/leaflet.js"></script>
 	<script src="js/leaflet.markercluster.js"></script>
 
@@ -86,34 +98,37 @@
 			oav = new OsmApiViewer( {
 				mapId: 'map'
 			});
-		});
 
-		$('a.oav-datasettings').popover({
-			html: 'true',
-			placement: 'right',
-			container: 'body',
-			content : function() {
-				return $('#popover-content').html();
-			}
-		}).on('show.bs.popover', function (e) {
+			$('a.oav-datasettings').popover({
+				html: 'true',
+				placement: 'right',
+				container: 'body',
+				content : function() {
+					return $('#popover-content').html();
+				}
+			}).on('show.bs.popover', function (e) {
 
-		}).on('shown.bs.popover', function (e) {
+			}).on('shown.bs.popover', function (e) {
 
-			// Bootstrap add an attribute 'aria-describedby' which contains the popup id.
-			var p = $('#' + $(e.target).attr('aria-describedby'));
+				// Bootstrap add an attribute 'aria-describedby' which contains the popup id.
+				var p = $('#' + $(e.target).attr('aria-describedby'));
 
-			//p.resizable();
+				//p.resizable();
 
-			p.find('input.cancel').click(function (e) {
-				p.popover('hide');
+				p.find('input.cancel').click(function (e) {
+					p.popover('hide');
+				});
+				p.find('input.save').click(function (e) {
+					p.popover('hide');
+				});
+
+				$('.colorpicker', p).colorpicker();
+
+				$('#settingIcon', p).picker();
+
 			});
-			p.find('input.save').click(function (e) {
-				p.popover('hide');
-			});
+
 		});
-
-
-
 	</script>
 	</body>
 </html>
