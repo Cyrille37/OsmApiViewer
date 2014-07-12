@@ -4,6 +4,7 @@
 		<title>OsmApiViewer</title>
 		<meta charset="utf-8"/>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
 		<link href="/css/bootstrap.min.css" rel="stylesheet">
 		<link href="/css/bootstrap-theme.min.css" rel="stylesheet">
 		<link href="css/leaflet.css" rel="stylesheet" media="screen"/>
@@ -13,12 +14,6 @@
 		<link href="css/MarkerCluster.Default.css" rel="stylesheet" media="screen"/>
 		<link href="css/MarkerCluster.css" rel="stylesheet" media="screen"/>
 		<style>
-			#map {
-				height: 600px;
-			}
-			.tree {
-				float: left;
-			}
 		</style>
 		<link rel="stylesheet" href="/css/osmApiViewer.css">
 	</head>
@@ -50,31 +45,29 @@
 
 	<div id="map"></div>
 
-	<div id="popover-content" style="display: none" >
-		<div class="container" style="margin: 25px; ">
-			<div class="row" style="padding-top: 240px;">
-				<label id="sample">
-					<form name="dataSettingsForm" class="dataSettingsForm" method="post" action="">
-						<p>
-							<label>Name :</label>
-							<input type="text" id="txtName" name="txtName" />
-						</p>
-						<p>
-							<label>Address 1 :</label>
-							<input type="text" id="txtAddress" name="txtAddress" />
-						</p>
-						<p>
-							<label>City :</label>
-							<input type="text" id="txtCity" name="txtCity" />
-						</p>
-						<p>
-							<input type="button" name="apply" class="save" value="Appliquer" />
-							<input type="button" name="cancel" class="cancel" value="Annuler" />
-						</p>
-					</form>
-
-				</label>
-			</div>
+	<div id="popover-content" style="display: none;" role="tooltip" >
+		<h3 class="popover-title"></h3>
+		<div >
+			<form name="dataSettingsForm" role="form" method="post" action="">
+				<div class="form-group" >
+						<label for="dataSettingName">Nom :</label>
+						<input type="text" id="dataSettingName" name="dataSettingName" class="form-control" />
+				</div>
+				<div class="form-group" >
+					<label for="dataSettingQueryType">Type de requête :</label>
+					<select type="select" id="dataSettingQueryType" name="dataSettingQueryType" class="form-control" >
+						<option value ="xapi">XAPI</option>
+						<option value ="xapi">OAPI</option>
+					</select>
+					<p class="help-block">Example block-level help text here.</p>
+					<label for="dataSettingQuery">Requête :</label>
+					<textarea id="dataSettingQuery" name="dataSettingQuery" class="form-control" ></textarea>
+				</div>
+				<div class="form-group" >
+					<input type="button" name="apply" value="Appliquer" class="btn btn-success save" />
+					<input type="button" name="cancel" value="Annuler" class="btn btn-info btn-sm cancel" />
+				</div>
+			</form>
 		</div> 
 	</div>
 
@@ -108,6 +101,9 @@
 
 			// Bootstrap add an attribute 'aria-describedby' which contains the popup id.
 			var p = $('#' + $(e.target).attr('aria-describedby'));
+
+			//p.resizable();
+
 			p.find('input.cancel').click(function (e) {
 				p.popover('hide');
 			});
@@ -115,6 +111,8 @@
 				p.popover('hide');
 			});
 		});
+
+
 
 	</script>
 	</body>

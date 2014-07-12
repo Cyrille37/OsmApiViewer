@@ -3,7 +3,9 @@ OsmApiViewer
 
 A simple piece of Javascript to query and display OSM data with some API queries (xapi, oapi).
 
-XAPI documentation, examples & services
+**This code is under construction, not yet fonctional.**
+
+API documentation, examples & services:
 
 * http://wiki.openstreetmap.org/wiki/XAPI
 * http://open.mapquestapi.com/xapi/

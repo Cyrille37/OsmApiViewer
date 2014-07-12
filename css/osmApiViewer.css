@@ -1,8 +1,31 @@
 
+body {
+    height: 100%;
+}
+html {
+    height: 100%;
+}
+#map {
+    height: 99%;
+}
+
+.popover {
+	width: 360px;
+	max-width: none;
+	/* Avec "overflow" on perd la jolie petite pointe qui part de l'élément cliqué ...
+	 * overflow: hidden ;
+	 * overflow: auto ;
+	 */
+}
+
 /* the Tree for Data sélection */
 
 .tree .querying {
 	opacity: 0.3 ;
+}
+
+.tree {
+	float: left;
 }
 
 .tree{
