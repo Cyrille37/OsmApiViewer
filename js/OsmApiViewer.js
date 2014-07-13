@@ -2,6 +2,8 @@
  * OsmApiViewer.js
  */
 
+var oav ;
+
 /**
  */
 function log(msg)
@@ -17,6 +19,39 @@ function logo(obj)
  * IHM initialization
  */
 $(function() {
+
+	oav = new OsmApiViewer( {
+		mapId: 'map'
+	});
+
+	$('a.oav-datasettings').popover({
+		html: 'true',
+		placement: 'right',
+		container: 'body',
+		content : function() {
+			return $('#popover-content').html();
+		}
+	}).on('show.bs.popover', function (e) {
+
+	}).on('shown.bs.popover', function (e) {
+
+		// Bootstrap add an attribute 'aria-describedby' which contains the popup id.
+		var p = $('#' + $(e.target).attr('aria-describedby'));
+
+		//p.resizable();
+
+		p.find('input.cancel').click(function (e) {
+			p.popover('hide');
+		});
+		p.find('input.save').click(function (e) {
+			p.popover('hide');
+		});
+
+		$('.colorpicker', p).colorpicker();
+
+		$('#settingIcon', p).picker();
+
+	});
 
 	var categories = $('.tree').find('li:has(ul)');
 	
