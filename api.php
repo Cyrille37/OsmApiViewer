@@ -14,7 +14,6 @@ require LIBS . '/Slim/Slim/Slim.php';
 require LIBS . '/idiorm/idiorm.php';
 
 require LIBS . '/Util.php';
-require LIBS . '/JsonResponse.php';
 require LIBS . '/RestDB.php';
 
 $app = new \Slim\Slim();
