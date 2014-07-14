@@ -15,6 +15,7 @@ class JsonResponse
     {
         if ($data instanceof \Exception) {
             $data = array(
+                'type' => get_class($data),
                 'msg' => $data->getMessage(),
                 'code' => $data->getCode(),
                 'file' => $data->getFile(),
