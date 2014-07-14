@@ -2,3 +2,6 @@
 .buildpath
 .project
 .settings/
+# my data
+osmapiviewer.sqlite
+concept.vue
