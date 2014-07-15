@@ -49,7 +49,13 @@ $(function() {
 
 		$('.colorpicker', p).colorpicker();
 
-		$('#settingIcon', p).picker();
+		$('#settingIcon', p).picker({
+			title: 'Icone pour les markers',
+			items: [
+			        '<img src="mapicons/cinema.png" />',
+			        '<img src="mapicons/coffee.png" />'
+			        ]
+		});
 
 	});
 
