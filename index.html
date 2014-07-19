@@ -7,8 +7,11 @@
 
 		<link href="/css/bootstrap.min.css" rel="stylesheet">
 		<link href="/css/bootstrap-theme.min.css" rel="stylesheet">
+
 		<link href="/css/bootstrap-colorpicker.min.css" rel="stylesheet">
-		<link href="/css/bootstrap-picker.min.css" rel="stylesheet">
+		<link href="/css/fontawesome-iconpicker.min.css" rel="stylesheet">
+
+		<link href="/css/geoIcons.css" rel="stylesheet">
 
 		<link href="css/leaflet.css" rel="stylesheet" media="screen"/>
 		<!--[if lte IE 8]>
@@ -52,6 +55,7 @@
 		<h3 class="popover-title"></h3>
 		<div >
 			<form name="dataSettingsForm" role="form" method="post" action="">
+			<a href="javascript:void(0);" onclick="javascript: $('#settingIcon').setItems({}); return false;" >test</a>
 				<div class="form-group" >
 					<label for="settingName">Nom :</label>
 					<input type="text" id="settingName" name="settingName" class="form-control" />
@@ -87,8 +91,10 @@
 	<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
 	<script>window.jQuery || document.write('<script src="js/jquery-1.11.0.min.js"><\/script>')</script>
 	<script src="js/bootstrap.min.js"></script>
+
 	<script src="js/bootstrap-colorpicker.min.js"></script>
-	<script src="js/bootstrap-picker.min.js"></script>
+	<script src="js/fontawesome-iconpicker.min.js"></script>
+
 	<script src="js/leaflet.js"></script>
 	<script src="js/leaflet.markercluster.js"></script>
 

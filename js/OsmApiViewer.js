@@ -49,11 +49,15 @@ $(function() {
 
 		$('.colorpicker', p).colorpicker();
 
-		$('#settingIcon', p).picker({
-			title: 'Icone pour les markers',
-			items: [
-			        '<img src="mapicons/cinema.png" />',
-			        '<img src="mapicons/coffee.png" />'
+		$('#settingIcon', p).iconpicker({
+			fullClassFormatter: function(a) {
+	            return 'geoico geoico-' + a;
+	        },
+			title: 'Icones pour les markers',
+			icons: [
+			        'camping',
+			        'bed_and_breakfast',
+			        'alpinehut'
 			        ]
 		});
 

@@ -85,6 +85,10 @@ $app->get('/install', function () use($app)
     echo JsonResponse::Ok();
 });
 
+$app->get('/map-icons', function () use($app)
+{
+});
+
 $app->hook(RestDB::HOOK_CREATE_BEFORE_SAVE, function ($tableName, $obj) use($app)
 {
     switch ($tableName) {
