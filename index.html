@@ -26,9 +26,16 @@
 	<body>
 
 	<div class="tree">
+		<p>
+			<a href="javascript:void(0)" class="oav-dataadd"><i class="glyphicon glyphicon-plus"></i></a>
+		</p>
 		<ul>
 			<li>
 				<span><i class="glyphicon glyphicon-folder-open"></i> &nbsp; Categorie 1</span>
+					<a href="javascript:void(0)" class="oav-dataplus">
+						<i class="glyphicon glyphicon-plus"></i></a>
+					<a href="javascript:void(0)" class="oav-datatrash">
+						<i class="glyphicon glyphicon-trash"></i></a>
 				<ul>
 					<li class="oav-data" data-queryType="xapi" data-query="node[highway=crossing]">
 						<a href="javascript:void(0)" class="oav-dataselect">
@@ -36,6 +43,8 @@
 							Passages piétons</a>
 						<a href="javascript:void(0)" class="oav-datasettings">
 							<i class="glyphicon glyphicon-cog"></i></a>
+						<a href="javascript:void(0)" class="oav-datatrash">
+							<i class="glyphicon glyphicon-trash"></i></a>
 					</li>
 					<li class="oav-data" data-queryType="xapi" data-query="node[amenity=bench]">
 						<a href="javascript:void(0)" class="oav-dataselect">
@@ -43,6 +52,8 @@
 							Bancs</a>
 						<a href="javascript:void(0)" class="oav-datasettings">
 							<i class="glyphicon glyphicon-cog"></i></a>
+						<a href="javascript:void(0)" class="oav-datatrash">
+							<i class="glyphicon glyphicon-trash"></i></a>
 					</li>
 				</ul>
 			</li>
@@ -55,7 +66,6 @@
 		<h3 class="popover-title"></h3>
 		<div >
 			<form name="dataSettingsForm" role="form" method="post" action="">
-			<a href="javascript:void(0);" onclick="javascript: $('#settingIcon').setItems({}); return false;" >test</a>
 				<div class="form-group" >
 					<label for="settingName">Nom :</label>
 					<input type="text" id="settingName" name="settingName" class="form-control" />
