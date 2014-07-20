@@ -45,9 +45,9 @@ class RestDB
             ORM::configure($dsn);
         
         foreach ($this->config as $k => $v)
-            if( isset($options[$k]) )
+            if (isset($options[$k]))
                 $this->config[$k] = $options[$k];
-
+        
         if ($this->config['logging']) {
             ORM::configure('logging', $this->config['logging']);
             ORM::configure('logger', function ($log_string, $query_time)
@@ -65,9 +65,12 @@ class RestDB
          * Retreive table rows
          * :table = the table to select
          * :field = optional - the name of the field to filter by -
-         *      if :fieldValue not present, :field is a :table primary key value
+         * if :fieldValue not present, :field is a :table primary key value
          * :fieldValue = optional - the value of the field to filter by
          * :childrenTable = optional - the children table to select, linked to table by field '<table>_id'.
+         *
+         * examples
+         * - api.php/db/items/id/4/keysvalue
          */
         $app->get($this->config['route_prefix'] . '/:table(/:field)(/:fieldValue)(/:childrenTable)', function ($table, $field = null, $fieldValue = null, $childrenTable = null) use($app)
         {
@@ -79,9 +82,9 @@ class RestDB
                 
                 // Do not need a join...
                 // $result = ORM::for_table($table) ->select( $childrenTable . '.*')
-                //  ->where($table . '.' . $field, $fieldValue)
-                //  ->join($childrenTable, array($table . '.id', '=', $childrenTable . '.' . $table . '_id')) ->findArray();
-
+                // ->where($table . '.' . $field, $fieldValue)
+                // ->join($childrenTable, array($table . '.id', '=', $childrenTable . '.' . $table . '_id')) ->findArray();
+                
                 $result = ORM::for_table($childrenTable)->where($childrenTable . '.' . $table . '_id', $fieldValue)
                     ->find_array();
             /**
@@ -169,5 +172,67 @@ class RestDB
             $app->contentType(self::HTTP_CONTENT_TYPE);
             echo JsonResponse::Ok();
         });
+    }
+
+    /**
+     * Just for convenience, if you need a simple grouped keys value database.
+     * 
+     * @param string $fakedata Create fake data or not (default).
+     */
+    public function createSimpleKeysValueDB($fakedata=null)
+    {
+        $sqls = array(
+            'DROP TABLE IF EXISTS `keysvalue` ;',
+            'DROP TABLE IF EXISTS `items` ;',
+            'DROP TABLE IF EXISTS `groups` ;',
+            'CREATE TABLE `groups` (
+					`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+					`guid` VARCHAR(36) NOT NULL,
+					`label` VARCHAR,
+					UNIQUE (`guid`)
+				);',
+            'CREATE TABLE `items` (
+					`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+					`groups_id` INTEGER NOT NULL,
+					`label` VARCHAR,
+					FOREIGN KEY(groups_id) REFERENCES `groups`(id)
+				);',
+            'CREATE TABLE `keysvalue` (
+					`items_id` KEY NOT NULL,
+					`key` VARCHAR NOT NULL,
+					`value` BLOB,
+					PRIMARY KEY( `items_id`,`key`),
+					FOREIGN KEY(items_id) REFERENCES `items`(id)
+				);'
+        );
+        
+        if (! empty($fakedata)) {
+            $sql_fakedata = array(
+                'INSERT INTO groups (id, guid,label) VALUES
+                    (1, "6D72550B-9FFE-4A9A-838F-70A84BA4AE64","Premier groupe"),
+                    (2, "9B2F39CF-A925-4984-9ABC-D326AA8A9FB9","Un autre groupe"),
+                    (3, "A0908D4D-D68B-4203-9F6E-63C7931BCBFF","Un autre groupe")',
+                'INSERT INTO items (id, groups_id, label) VALUES
+                    (1, 2, "item 1 group 2"),
+                    (2, 2, "item 2 group 2"),
+                    (3, 3, "item 1 group 3"),
+                    (4, 4, "item 1 group 4")',
+                'INSERT INTO keysvalue (items_id,key,value) VALUES
+                    (1,"K1.1","123"),
+                    (1,"K1.2","123"),
+                    (2,"K2.1","123"),
+                    (2,"K2.2","123"),
+                    (3,"K3.1","123"),
+                    (4,"K4.1","123")'
+            );
+            $sqls = array_merge($sqls, $sql_fakedata);
+        }
+        
+        ORM::get_db()->beginTransaction();
+        foreach ($sqls as $sql) {
+            error_log('EXEC : ' . $sql);
+            ORM::get_db()->exec($sql);
+        }
+        ORM::get_db()->commit();
     }
 }
