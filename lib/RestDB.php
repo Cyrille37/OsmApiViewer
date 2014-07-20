@@ -10,7 +10,10 @@
  * Some urls:
  * curl -i -H "Accept: application/json" -X GET http://website/some.php/db/table/id
  * curl -i -H "Accept: application/json" -X GET http://website/some.php/db/table/field/value
+ * 
  * curl -i -H "Accept: application/json" -X GET http://website/some.php/db/table/field/value/childrenTable
+ * curl -i -H "Accept: application/json" -X GET http://website/api.php/db/items/id/4/keysvalue
+ * 
  * curl -i -H "Accept: application/json" -X POST -d "label=bla bla bla" http://website/some.php/db/table
  * curl -i -H "Accept: application/json" -X PUT -d "label=bla bla bla" http://website/some.php/db/table/id
  * 
@@ -68,9 +71,6 @@ class RestDB
          * if :fieldValue not present, :field is a :table primary key value
          * :fieldValue = optional - the value of the field to filter by
          * :childrenTable = optional - the children table to select, linked to table by field '<table>_id'.
-         *
-         * examples
-         * - api.php/db/items/id/4/keysvalue
          */
         $app->get($this->config['route_prefix'] . '/:table(/:field)(/:fieldValue)(/:childrenTable)', function ($table, $field = null, $fieldValue = null, $childrenTable = null) use($app)
         {
@@ -176,10 +176,11 @@ class RestDB
 
     /**
      * Just for convenience, if you need a simple grouped keys value database.
-     * 
-     * @param string $fakedata Create fake data or not (default).
+     *
+     * @param string $fakedata
+     *            Create fake data or not (default).
      */
-    public function createSimpleKeysValueDB($fakedata=null)
+    public function createSimpleKeysValueDB($fakedata = null)
     {
         $sqls = array(
             'DROP TABLE IF EXISTS `keysvalue` ;',
