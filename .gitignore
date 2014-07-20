@@ -4,5 +4,5 @@
 .settings/
 # my data
 osmapiviewer.sqlite
-concept.vue
+#concept.vue
 .~*
