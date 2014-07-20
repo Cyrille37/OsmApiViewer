@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="fr">
+	<head>
+		<title>OsmApiViewer</title>
+		<meta charset="utf-8"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+		<link href="/css/bootstrap.min.css" rel="stylesheet">
+		<link href="/css/bootstrap-theme.min.css" rel="stylesheet">
+
+		<link href="/css/bootstrap-colorpicker.min.css" rel="stylesheet">
+		<link href="/css/fontawesome-iconpicker.min.css" rel="stylesheet">
+
+		<link href="/css/geoIcons.css" rel="stylesheet">
+
+		<link href="css/leaflet.css" rel="stylesheet" media="screen"/>
+		<!--[if lte IE 8]>
+			<link rel="stylesheet" href="js/leaflet.ie.css" />
+		<![endif]-->
+		<link href="css/MarkerCluster.Default.css" rel="stylesheet" media="screen"/>
+		<link href="css/MarkerCluster.css" rel="stylesheet" media="screen"/>
+		<style>
+		</style>
+		<link rel="stylesheet" href="/css/osmApiViewer.css">
+	</head>
+	<body>
+
+	<div class="tree">
+		<p>
+			<a href="javascript:void(0)" class="oav-dataadd"><i class="glyphicon glyphicon-plus"></i></a>
+		</p>
+		<ul>
+			<li>
+				<span><i class="glyphicon glyphicon-folder-open"></i> &nbsp; Categorie 1</span>
+					<a href="javascript:void(0)" class="oav-dataplus">
+						<i class="glyphicon glyphicon-plus"></i></a>
+					<a href="javascript:void(0)" class="oav-datatrash">
+						<i class="glyphicon glyphicon-trash"></i></a>
+				<ul>
+					<li class="oav-data" data-queryType="xapi" data-query="node[highway=crossing]">
+						<a href="javascript:void(0)" class="oav-dataselect">
+							<i class="glyphicon glyphicon-ok-circle"></i>
+							Passages piétons</a>
+						<a href="javascript:void(0)" class="oav-datasettings">
+							<i class="glyphicon glyphicon-cog"></i></a>
+						<a href="javascript:void(0)" class="oav-datatrash">
+							<i class="glyphicon glyphicon-trash"></i></a>
+					</li>
+					<li class="oav-data" data-queryType="xapi" data-query="node[amenity=bench]">
+						<a href="javascript:void(0)" class="oav-dataselect">
+							<i class="glyphicon glyphicon-ok-circle"></i>
+							Bancs</a>
+						<a href="javascript:void(0)" class="oav-datasettings">
+							<i class="glyphicon glyphicon-cog"></i></a>
+						<a href="javascript:void(0)" class="oav-datatrash">
+							<i class="glyphicon glyphicon-trash"></i></a>
+					</li>
+				</ul>
+			</li>
+		</ul>
+	</div>
+
+	<div id="map"></div>
+
+	<div id="popover-content" style="display: none;" role="tooltip" >
+		<h3 class="popover-title"></h3>
+		<div >
+			<form name="dataSettingsForm" role="form" method="post" action="">
+				<div class="form-group" >
+					<label for="settingName">Nom :</label>
+					<input type="text" id="settingName" name="settingName" class="form-control" />
+					<label for="settingClusterColor">Couleur des clusters :</label>
+					<div class="input-group colorpicker">
+						<input type="text" id="settingClusterColor" name="settingClusterColor" value="" class="form-control" />
+						<span class="input-group-addon"><i></i></span>
+					</div>
+					<label for="settingIcon">Icones :</label>
+<div class="input-group picker-container">
+	<input id="settingIcon" name="settingIcon" class="form-control pck pck-opts pck-auto picker-input" type="text" value="" data-placement="bottomLeft" data-hide-on-select="true">
+	<span class="input-group-addon picker-component"><i class="fa fa-angle-double-down"></i></span>
+</div>
+				</div>
+				<div class="form-group" >
+					<label for="dataSettingQueryType">Type de requête :</label>
+					<select type="select" id="dataSettingQueryType" name="dataSettingQueryType" class="form-control" >
+						<option value ="xapi">XAPI</option>
+						<option value ="xapi">OAPI</option>
+					</select>
+					<p class="help-block">Example block-level help text here.</p>
+					<label for="dataSettingQuery">Requête :</label>
+					<textarea id="dataSettingQuery" name="dataSettingQuery" class="form-control" ></textarea>
+				</div>
+				<div class="form-group" >
+					<input type="button" name="apply" value="Appliquer" class="btn btn-success save" />
+					<input type="button" name="cancel" value="Annuler" class="btn btn-info btn-sm cancel" />
+				</div>
+			</form>
+		</div> 
+	</div>
+
+	<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+	<script>window.jQuery || document.write('<script src="js/jquery-1.11.0.min.js"><\/script>')</script>
+	<script src="js/bootstrap.min.js"></script>
+
+	<script src="js/bootstrap-colorpicker.min.js"></script>
+	<script src="js/fontawesome-iconpicker.min.js"></script>
+
+	<script src="js/leaflet.js"></script>
+	<script src="js/leaflet.markercluster.js"></script>
+
+	<script src="js/osmtogeojson.js"></script>
+	<script src="js//md5.min.js"></script>
+	<script src="js/OsmApiViewer.js"></script>
+
+	<script>
+	$(function() {
+
+		var oav = new OsmApiViewer( {
+			mapId: 'map'
+		});
+
+	});
+
+	/*
+	$(window).on('hashchange', function() {
+	    console.log('hash changed to : '+document.location.hash);
+	});
+	$( function() {
+		console.log( 'hash: '+window.location.hash );
+		window.location.hash = '#TOTO' ;
+		console.log( 'hash: '+window.location.hash );
+		
+	});
+	*/
+	</script>
+
+	</body>
+</html>

@@ -1,13 +1,41 @@
 
-body {
-    height: 100%;
+body, html {
+	/* Needed to map auto fill page */
+   height: 100%;
 }
-html {
-    height: 100%;
+
+/* ==================================
+ * Modal stuff
+ */
+
+.modal-body-content {
+	display: none;
 }
+
+.modal .alert {
+	margin-bottom: 0px;
+}
+
+/* ==================================
+ * Navbar
+ */
+
+#navBar .glyphicon {
+	/*font-size: 1.3em;*/
+}
+
+/* ==================================
+ * Map
+ */
+
 #map {
-    height: 99%;
+    /*height: 99%;*/
+    height: 200px;
 }
+
+/* ==================================
+ *
+ */
 
 .popover {
 	width: 360px;
@@ -20,12 +48,17 @@ html {
 
 /* the Tree for Data sélection */
 
+#navTree
+{
+
+}
+
 .tree .querying {
 	opacity: 0.3 ;
 }
 
 .tree {
-	float: left;
+	/*float: left;*/
 }
 
 .tree{

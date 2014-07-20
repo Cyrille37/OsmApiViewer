@@ -25,78 +25,91 @@
 	</head>
 	<body>
 
-	<div class="tree">
-		<p>
-			<a href="javascript:void(0)" class="oav-dataadd"><i class="glyphicon glyphicon-plus"></i></a>
-		</p>
-		<ul>
-			<li>
-				<span><i class="glyphicon glyphicon-folder-open"></i> &nbsp; Categorie 1</span>
-					<a href="javascript:void(0)" class="oav-dataplus">
-						<i class="glyphicon glyphicon-plus"></i></a>
-					<a href="javascript:void(0)" class="oav-datatrash">
-						<i class="glyphicon glyphicon-trash"></i></a>
-				<ul>
-					<li class="oav-data" data-queryType="xapi" data-query="node[highway=crossing]">
-						<a href="javascript:void(0)" class="oav-dataselect">
-							<i class="glyphicon glyphicon-ok-circle"></i>
-							Passages piétons</a>
-						<a href="javascript:void(0)" class="oav-datasettings">
-							<i class="glyphicon glyphicon-cog"></i></a>
-						<a href="javascript:void(0)" class="oav-datatrash">
-							<i class="glyphicon glyphicon-trash"></i></a>
-					</li>
-					<li class="oav-data" data-queryType="xapi" data-query="node[amenity=bench]">
-						<a href="javascript:void(0)" class="oav-dataselect">
-							<i class="glyphicon glyphicon-ok-circle"></i>
-							Bancs</a>
-						<a href="javascript:void(0)" class="oav-datasettings">
-							<i class="glyphicon glyphicon-cog"></i></a>
-						<a href="javascript:void(0)" class="oav-datatrash">
-							<i class="glyphicon glyphicon-trash"></i></a>
-					</li>
-				</ul>
-			</li>
-		</ul>
+	<!-- Dialogs begin -->
+
+	<div id="dlgModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="modal-dialog"><!-- modal-sm modal-lg -->
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Annuler</span></button>
+					<h4 class="modal-title">Modal title</h4>
+				</div>
+				<div class="alert alert-danger" role="alert">...</div>
+				<div class="modal-body">
+					Modal body
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+					<button type="button" class="btn btn-primary" id="dlgModalOk">Ok</button>
+				</div>
+			</div>
+		</div>
 	</div>
 
-	<div id="map"></div>
+	<div id="dlgConfirm" class="modal-body-content" aria-hidden="true">
+		<div class="alert alert-warning" role="alert">...</div>
+	</div>
 
-	<div id="popover-content" style="display: none;" role="tooltip" >
-		<h3 class="popover-title"></h3>
-		<div >
-			<form name="dataSettingsForm" role="form" method="post" action="">
-				<div class="form-group" >
-					<label for="settingName">Nom :</label>
-					<input type="text" id="settingName" name="settingName" class="form-control" />
-					<label for="settingClusterColor">Couleur des clusters :</label>
-					<div class="input-group colorpicker">
-						<input type="text" id="settingClusterColor" name="settingClusterColor" value="" class="form-control" />
-						<span class="input-group-addon"><i></i></span>
+	<div id="dlgMapEdit" class="modal-body-content" aria-hidden="true">
+		<form role="form" id="formMapEdit">
+			<div class="form-group">
+				<label for="mapLabel">Titre de la carte:</label>
+				<input type="text" class="form-control" name="mapLabel" id="mapLabel" placeholder="Titre de la carte">
+			</div>
+			<div class="form-group">
+				<label for="mapDescription">Description de la carte:</label>
+				<textarea rows="4" class="form-control" name="mapDescription" id="mapDescription" placeholder="Description de la carte"></textarea>
+			</div>
+  		</form>
+	</div>
+
+	<!-- Dialogs end -->
+
+
+	<div class="container-fluid">
+		<div id="navPanel" class="row">
+			<div class="col-lg-2">
+				<div id="navBar" class="btn-toolbar" role="toolbar">
+					<div class="btn-group btn-group-sm">
+						<button type="button" id="mapNew" class="btn btn-primary disabled"
+							data-toggle="tooltip" data-container="body" data-placement="bottom" title="Créer une carte"><i class="glyphicon glyphicon-plus-sign"></i></button>
+						<button type="button" id="mapSave" class="btn btn-primary disabled"
+							data-toggle="tooltip" data-container="body" data-placement="bottom" title="Enregistrer la carte"><i class="glyphicon glyphicon-save"></i></button>
+						<button type="button" id="mapDelete" class="btn btn-primary disabled"
+							data-toggle="tooltip" data-container="body" data-placement="bottom" title="Supprimer la carte"><i class="glyphicon glyphicon-trash"></i></button>
 					</div>
-					<label for="settingIcon">Icones :</label>
-<div class="input-group picker-container">
-	<input id="settingIcon" name="settingIcon" class="form-control pck pck-opts pck-auto picker-input" type="text" value="" data-placement="bottomLeft" data-hide-on-select="true">
-	<span class="input-group-addon picker-component"><i class="fa fa-angle-double-down"></i></span>
-</div>
+					<div class="btn-group btn-group-sm">
+						<button type="button" id="mapUpload" class="btn btn-primary disabled"
+							data-toggle="tooltip" data-container="body" data-placement="bottom" title="Téléverser une carte"><i class="glyphicon glyphicon-upload"></i></button>
+						<button type="button" id="mapDownload" class="btn btn-primary disabled"
+							data-toggle="tooltip" data-container="body" data-placement="bottom" title="Télécharger la carte"><i class="glyphicon glyphicon-download"></i></button>
+					</div>
+		
 				</div>
-				<div class="form-group" >
-					<label for="dataSettingQueryType">Type de requête :</label>
-					<select type="select" id="dataSettingQueryType" name="dataSettingQueryType" class="form-control" >
-						<option value ="xapi">XAPI</option>
-						<option value ="xapi">OAPI</option>
-					</select>
-					<p class="help-block">Example block-level help text here.</p>
-					<label for="dataSettingQuery">Requête :</label>
-					<textarea id="dataSettingQuery" name="dataSettingQuery" class="form-control" ></textarea>
-				</div>
-				<div class="form-group" >
-					<input type="button" name="apply" value="Appliquer" class="btn btn-success save" />
-					<input type="button" name="cancel" value="Annuler" class="btn btn-info btn-sm cancel" />
-				</div>
-			</form>
-		</div> 
+				<div id="navTree">
+					<div class="header">
+						<h2>
+							<span>The Map Title</span>
+							<button id="mapEdit" type="button" class="btn btn-primary"
+								data-toggle="tooltip" data-container="body" data-placement="right" title="Éditer les paramètres de la carte"><i class="glyphicon glyphicon-cog"></i></button>
+						</h2>
+					</div>
+					<div class="tree">
+						<ul>
+						</ul>
+					</div>
+					<div class="footer">
+						<p>bla bla bla</p>
+					</div>
+			</div>
+			</div>
+			<div class="col-lg-10">
+				<div id="map"></div>
+			</div>
+		</div>
 	</div>
+
+
 
 	<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
 	<script>window.jQuery || document.write('<script src="js/jquery-1.11.0.min.js"><\/script>')</script>
@@ -110,7 +123,20 @@
 
 	<script src="js/osmtogeojson.js"></script>
 	<script src="js//md5.min.js"></script>
+	
 	<script src="js/OsmApiViewer.js"></script>
+	<script src="js/OsmApiViewerMap.js"></script>
+
+	<script>
+	"use strict";
+	$(function() {
+
+		var oav = new OsmApiViewer( {
+			mapId: 'map'
+		});
+
+	});
+	</script>
 
 	</body>
 </html>

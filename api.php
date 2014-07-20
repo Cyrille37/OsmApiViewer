@@ -55,17 +55,25 @@ $app->get('/install(/:fakedata)', function ($fakedata=null) use($app,$db)
 
     $sqls = array(
         'DROP TABLE IF EXISTS `queries` ;',
+        'DROP TABLE IF EXISTS `groups` ;',
         'DROP TABLE IF EXISTS `maps` ;',
         'CREATE TABLE `maps` (
 					`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 					`guid` VARCHAR(36) NOT NULL,
 					`label` VARCHAR,
-					`description` BLOG,
+					`description` VARCHAR,
                     UNIQUE (`guid`)
 				);',
-        'CREATE TABLE `queries` (
+        'CREATE TABLE `groups` (
 					`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 					`maps_id` INTEGER NOT NULL,
+					`label` VARCHAR,
+					`description` VARCHAR,
+                    FOREIGN KEY(maps_id) REFERENCES `maps`(id)
+            );',
+        'CREATE TABLE `queries` (
+					`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+					`groups_id` INTEGER NOT NULL,
 					`label` VARCHAR,
 					`description` VARCHAR,
 					`query_type` VARCHAR,
@@ -73,7 +81,7 @@ $app->get('/install(/:fakedata)', function ($fakedata=null) use($app,$db)
 					`marker_name` VARCHAR,
                     `marker_color` VARCHAR(7),
                     `cluster_color` VARCHAR(7),
-                    FOREIGN KEY(maps_id) REFERENCES `maps`(id)
+                    FOREIGN KEY(groups_id) REFERENCES `groups`(id)
 				);'
     );
 

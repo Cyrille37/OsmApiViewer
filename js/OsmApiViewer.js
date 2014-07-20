@@ -2,283 +2,198 @@
  * OsmApiViewer.js
  */
 
-var oav ;
-
 /**
  */
-function log(msg)
-{
+function log(msg) {
 	window.console && console.log(msg);
 }
-function logo(obj)
-{
+function logo(obj) {
 	window.console && console.dir(obj);
 }
 
-/**
- * IHM initialization
- */
-$(function() {
+var Helper = {
 
-	oav = new OsmApiViewer( {
-		mapId: 'map'
-	});
+	dlgId : '#dlgModal',
 
-	$('a.oav-datasettings').popover({
-		html: 'true',
-		placement: 'right',
-		container: 'body',
-		content : function() {
-			return $('#popover-content').html();
-		}
-	}).on('show.bs.popover', function (e) {
+	showDialog : function(title, dlgContentId, callback) {
 
-	}).on('shown.bs.popover', function (e) {
-
-		// Bootstrap add an attribute 'aria-describedby' which contains the popup id.
-		var p = $('#' + $(e.target).attr('aria-describedby'));
-
-		//p.resizable();
-
-		p.find('input.cancel').click(function (e) {
-			p.popover('hide');
-		});
-		p.find('input.save').click(function (e) {
-			p.popover('hide');
+		$(Helper.dlgId).on('show.bs.modal', function(e) {
+			$(Helper.dlgId).off('show.bs.modal');
+			$('.alert', this).hide();
 		});
 
-		$('.colorpicker', p).colorpicker();
+		var d = $(Helper.dlgId).modal({
+			backdrop : 'static'
+		});
+		d.find('.modal-title').text(title);
+		d.find('.modal-body').html($(dlgContentId).html());
+		d.find('#dlgModalOk').click(callback);
+	},
 
-		$('#settingIcon', p).iconpicker({
-			fullClassFormatter: function(a) {
-	            return 'geoico geoico-' + a;
-	        },
-			title: 'Icones pour les markers',
-			icons: [
-			        'camping',
-			        'bed_and_breakfast',
-			        'alpinehut'
-			        ]
+	showDialogAlert : function(message) {
+		$(Helper.dlgId + ' .alert').text(message).show();
+	},
+
+	hideDialog : function() {
+		$(Helper.dlgId).find('#dlgModalOk').off('click');
+		$(Helper.dlgId).modal('hide');
+	}
+}
+
+var DlgMapEdit = {
+
+	dlgId : '#dlgMapEdit',
+	dlgCallback : null,
+
+	showDialog : function(callback, label, desc) {
+		DlgMapEdit.dlgCallback = callback;
+		Helper.showDialog('Créer une carte', DlgMapEdit.dlgId,
+				DlgMapEdit.dialogCallback);
+		var formMapEdit = $('#formMapEdit');
+		$('#mapLabel', formMapEdit).val(label);
+		$('#mapDescription', formMapEdit).val(desc);
+	},
+
+	dialogCallback : function() {
+		var formMapEdit = $('#formMapEdit');
+		var label = $('#mapLabel', formMapEdit).val().trim();
+		var desc = $('#mapDescription', formMapEdit).val().trim();
+
+		if (label.length == 0) {
+			Helper.showDialogAlert('Le titre est obligatoire');
+			return;
+		}
+		Helper.hideDialog();
+		DlgMapEdit.dlgCallback(label, desc);
+	}
+
+};
+
+var DlgConfirm = {
+
+	dlgId : '#dlgConfirm',
+	dlgCallback : null,
+
+	showDialog : function(title, message, callback) {
+		DlgConfirm.dlgCallback = callback;
+		$(DlgConfirm.dlgId + ' .alert').text(message);
+		Helper.showDialog(title, DlgConfirm.dlgId, DlgConfirm.dialogCallback);
+	},
+
+	dialogCallback : function() {
+		$(Helper.dlgId).on('hidden.bs.modal', function(e) {
+			$(Helper.dlgId).off('hidden.bs.modal');
+
+			DlgConfirm.dlgCallback(true);
 		});
 
-	});
+		Helper.hideDialog();
 
-	var categories = $('.tree').find('li:has(ul)');
-	
-	// Plier/déplier les catégories
-	categories.find(' > span').attr('title', 'Replier la catégorie').on('click', function (e) {
-
-		var children = $(this).parent('li').find(' > ul > li');
-		if (children.is(':visible')) {
-			children.hide('fast');
-			$(this).attr('title', 'Déplier la catégorie').find(' > i')
-				.addClass('glyphicon-folder-close').removeClass('glyphicon-folder-open');
-		}
-		else {
-			children.show('fast');
-			$(this).attr('title', 'Replier la catégorie').find(' > i')
-				.addClass('glyphicon-folder-open').removeClass('glyphicon-folder-close');
-		}
-		e.stopPropagation();
-	});
-
-	// Sélectionner/désélectionner les données et lancer la requête ou supprimer le layer de données
-	categories.find(' > ul > li a.oav-dataselect').attr('title', 'Ajouter ces données').on('click', function (e) {
-
-		var p = $(this).parent('li') ;
-
-		if( p.hasClass('querying') == true )
-			return ;
-
-		if( p.attr('selected') )
-		{
-			p.attr('selected',null);
-			$(this).attr('title', 'Ajouter ces données').find('i')
-				.addClass('glyphicon-ok-circle').removeClass('glyphicon-ok-sign');
-			// remove data layer
-			oav.remove( p.attr('data-queryType'), p.attr('data-query') );
-		}
-		else
-		{
-			p.attr('selected',true).addClass('querying');
-			$(this).attr('title', 'Supprimer ces données').find('i')
-				.addClass('glyphicon-ok-sign').removeClass('glyphicon-ok-circle');
-
-			// get data
-			oav.query( p.attr('data-queryType'), p.attr('data-query'), p, 'querying' );
-
-		}
-	});
-
-	// paramètres des données
-	//categories.find(' > ul > li a.oav-datasettings').attr('title', 'Configurer ce jeu de données').on('click', function (e) {
-	//});
-
-});
+	}
+};
 
 /**
  * OsmApiViewer
  */
-function OsmApiViewer ( options ) {
-
-	this.mapId = options.mapId ;
-	this.map = null ;
-	this.queries = [] ;
-
-	// used in event context
-	var self = this;
-
-	this.mapCreate = function ()
-	{
-		this.map = L.map( this.mapId );
-
-		var OsmDataAttr = 'Data © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>';
-		var osmFr = new L.TileLayer(
-			'http://{s}.tile.openstreetmap.fr/{type}/{z}/{x}/{y}.png', {
-			minZoom: 1, 
-			maxZoom: 20, 
-			type: 'osmfr',
-			attribution: OsmDataAttr+', Map by &copy; <a href="http://openstreetmap.fr">OSM_Fr</a>'
-		});
-		this.map.addLayer(osmFr);
-
-		this.map.setView([47.39251, 0.68698], 18);
-
-	}
-
-	// Constructor, here ...
-
-	this.mapCreate();
+function OsmApiViewer(options) {
 
 	/**
-	 * Event occured after drag or zoom
+	 * 
 	 */
-	this.map.on('moveend', function(e)
-	{
-		console.log('map.on(moveend)');
+	OsmApiViewer.prototype.guiState = function() {
 
-		//var oo = $('.tree').find('li:has(ul)').find(' > ul > li');
-		//.attr('selected')
+		var navBar = $('#navBar');
 
-		$.each($('.tree').find('li:has(ul)').find(' > ul > li'), function( i, o ) {
-			var o = $(o);
-			if( o.attr('selected') )
-			{
-				var qt = o.attr('data-queryType');
-				var q = o.attr('data-query');
-				log('got one selected');
-				self.remove( qt, q );
-				self.query( qt, q );
+		$('[data-toggle="tooltip"]', navBar).tooltip();
+
+		$('#mapNew', navBar).click(this.mapNew).removeClass('disabled');
+		$('#mapUpload', navBar).removeClass('disabled');
+
+		if (this.hasMap()) {
+			// Map editing
+			$('#navTree').show();
+			if (this.isMapDirty()) {
+				$('#mapSave', navBar).removeClass('disabled');
+			} else {
+				$('#mapSave', navBar).addClass('disabled');
 			}
-		});
+			$('#mapDelete', navBar).removeClass('disabled');
+			$('#mapDownload', navBar).removeClass('disabled');
 
-	});
-
-	this.remove = function(queryType,query)
-	{
-		log('remove(): '+queryType+', '+query);
-		var qid = md5(queryType+query);
-		//logo( this.queries[qid] );
-		if( self.queries[qid] == undefined )
-			return ;
-
-		if( self.queries[qid].markers != null )
-		{
-			//self.queries[qid].markers.removeLayer(self.queries[qid].geoJsonLayer);
-			self.queries[qid].markers.clearLayers();
-			self.map.removeLayer(self.queries[qid].markers);
-			self.queries[qid].markers = null ;
-			self.queries[qid].geoJsonLayer = null ;
-		}
-	}
-
-	this.query = function( queryType, query, ihmObject, ihmClass2Remove )
-	{
-		log('query(): '+queryType+', '+query);
-
-		var qid = md5(queryType+query);
-		if( this.queries[qid] != undefined )
-		{
-			if( this.queries[qid].querying )
-			{
-				log('already querying...');
-				return ;
-			}
 		} else {
-			this.queries[qid] = { 'qid': qid, 'queryType': queryType, 'query': query };
+			// No map edited
+
+			$('#navTree').hide();
+			$('#mapSave', navBar).addClass('disabled');
+			$('#mapDelete', navBar).addClass('disabled');
+			$('#mapDownload', navBar).addClass('disabled');
+
 		}
-		this.queries[qid].querying = true ;
+	};
 
-		var b = this.map.getBounds();
-		//logo( b );
-		var bb = b.getWest()+','+b.getSouth()+','+b.getEast()+','+b.getNorth() ;
-		url = 'proxy.php?'
-			+'qt='+encodeURIComponent(queryType)
-			+'&q='+encodeURIComponent(query)
-			+'&bb='+bb ;
-		var jqxhr = $.ajax(
-		{
-			url: url,
-			type: 'GET',
-			dataType: 'xml'
-		})
-		.done(function(data, statusStr, jqXHR) {
+	OsmApiViewer.prototype.hasMap = function() {
 
-			log('query.done(): '+queryType+', '+query);
-			geojson = osmtogeojson(data);
+		if (navTree.data('label') === undefined)
+			return false;
+		return true;
+	};
 
-			var geoJsonLayer = L.geoJson(geojson, {
-				'style': function (feature) {
-					//logo(feature);
-					return {color: '#00FF00' /*feature.properties.color*/};
-				},
-				'onEachFeature': function (feature, layer) {
-					layer.bindPopup(feature.properties.description);
-				}
-			}); //.addTo(self.map);
+	OsmApiViewer.prototype.isMapDirty = function() {
+		return navTree.data('dirty');
+	};
 
-			if( self.queries[qid].markers != null )
-			{
-				self.remove(queryType,query);
-			}
+	OsmApiViewer.prototype.setMapDirty = function() {
+		navTree.data('dirty', true);
+	};
 
-			var markers = new L.MarkerClusterGroup({
+	OsmApiViewer.prototype.mapNew = function(e) {
 
-				'iconCreateFunction': function(cluster) {
-					var childCount = cluster.getChildCount();
-					var c = ' marker-cluster-';
-					if (childCount < 10) {
-						c += 'small';
-					} else if (childCount < 100) {
-						c += 'medium';
-					} else {
-						c += 'large';
-					}
-					return new L.DivIcon({
-						html: '<div><span>' + childCount + '</span></div>',
-						className: 'marker-cluster' + c,
-						iconSize: new L.Point(40, 40) });
-				}
+		if (that.isMapDirty() && e !== true) {
+			DlgConfirm
+					.showDialog(
+							'Confirmez:',
+							'Vos modifications ne sont pas enregistrées, si vous créez une nouvelle carte elles seront perdues.',
+							that.mapNew);
+		} else {
+			DlgMapEdit.showDialog(that.mapNewCallback);
+		}
+	};
 
-			});
+	OsmApiViewer.prototype.mapNewCallback = function(label, desc) {
+		that.setMapLabel(label);
+		that.setMapDescription(desc);
+		that.guiState();
+	};
 
-			markers.addLayer(geoJsonLayer);
-			self.map.addLayer(markers);
+	OsmApiViewer.prototype.getMapLabel = function() {
+		return navTree.data('label');
+	};
 
-			self.queries[qid].markers = markers ;
-			self.queries[qid].geoJsonLayer = geoJsonLayer ;
+	OsmApiViewer.prototype.setMapLabel = function(label) {
+		navTree.data('label', label);
+		this.setMapDirty();
+		$('.header span', navTree).text( label );
+	};
 
-		})
-		.fail(function(jqXHR, textStatus, errorThrown) {
-			log('query.fail(): '+queryType+', '+query);
-		})
-		.always(function(data_jqXHR, textStatus, jqXHR_errorThrown) {
-			log('query.always(): '+queryType+', '+query);
-			self.queries[qid].querying = false ;
-			if( ihmObject != undefined )
-				ihmObject.removeClass( ihmClass2Remove );
-		});
+	OsmApiViewer.prototype.getMapDescription = function() {
+		return navTree.data('description');
+	};
 
-	}
+	OsmApiViewer.prototype.setMapDescription = function(desc) {
+		navTree.data('description', desc);
+		this.setMapDirty();
+	};
 
-}
+	var that = this;
+	this.mapId = options.mapId;
+
+	var navTree = $('#navTree');
+
+	this.guiState();
+
+	this.leafletMap = new OsmApiViewerMap(this.mapId);
+
+	$('#mapEdit').click(function(){
+		DlgMapEdit.showDialog(that.mapNewCallback, that.getMapLabel(), that.getMapDescription());		
+	});
+};
