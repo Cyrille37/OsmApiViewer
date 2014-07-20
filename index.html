@@ -63,8 +63,39 @@
   		</form>
 	</div>
 
+	<div id="dlgGroupEdit" class="modal-body-content" aria-hidden="true">
+		<form role="form" id="formGroupEdit">
+			<input type="hidden" name="groupId" id="groupId" />
+			<div class="form-group">
+				<label for="groupLabel">Titre du groupe:</label>
+				<input type="text" class="form-control" name="groupLabel" id="groupLabel" placeholder="Titre du groupe">
+			</div>
+			<div class="form-group">
+				<label for="groupDescription">Description du groupe:</label>
+				<textarea rows="4" class="form-control" name="groupDescription" id="groupDescription" placeholder="Description du groupe"></textarea>
+			</div>
+  		</form>
+	</div>
+
 	<!-- Dialogs end -->
 
+	<!-- BEG Tree item templates -->
+
+	<ul id="tplGroup" style="display: none;">
+		<li>
+			<span><i class="glyphicon glyphicon-folder-open"></i>&nbsp;<span class="groupLabel">A group label</span></span>
+			<a href="javascript:void(0)" class="oav-dataplus">
+				<i class="glyphicon glyphicon-plus"></i></a>
+			<a href="javascript:void(0)" class="oav-datatrash">
+				<i class="glyphicon glyphicon-trash"></i></a>
+			<ul>
+			</ul>
+		</li>
+	</ul>
+
+	<!-- END Tree item templates -->
+
+	<!-- BEG page content -->
 
 	<div class="container-fluid">
 		<div id="navPanel" class="row">
@@ -95,6 +126,8 @@
 						</h2>
 					</div>
 					<div class="tree">
+						<button id="groupNew" type="button" class="btn btn-primary"
+							data-toggle="tooltip" data-container="body" data-placement="bottom" title="Ajouter un groupe"><i class="glyphicon glyphicon-plus-sign"></i></button>
 						<ul>
 						</ul>
 					</div>
@@ -109,7 +142,7 @@
 		</div>
 	</div>
 
-
+	<!-- END page content -->
 
 	<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
 	<script>window.jQuery || document.write('<script src="js/jquery-1.11.0.min.js"><\/script>')</script>

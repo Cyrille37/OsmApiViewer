@@ -38,35 +38,6 @@ var Helper = {
 		$(Helper.dlgId).find('#dlgModalOk').off('click');
 		$(Helper.dlgId).modal('hide');
 	}
-}
-
-var DlgMapEdit = {
-
-	dlgId : '#dlgMapEdit',
-	dlgCallback : null,
-
-	showDialog : function(callback, label, desc) {
-		DlgMapEdit.dlgCallback = callback;
-		Helper.showDialog('Créer une carte', DlgMapEdit.dlgId,
-				DlgMapEdit.dialogCallback);
-		var formMapEdit = $('#formMapEdit');
-		$('#mapLabel', formMapEdit).val(label);
-		$('#mapDescription', formMapEdit).val(desc);
-	},
-
-	dialogCallback : function() {
-		var formMapEdit = $('#formMapEdit');
-		var label = $('#mapLabel', formMapEdit).val().trim();
-		var desc = $('#mapDescription', formMapEdit).val().trim();
-
-		if (label.length == 0) {
-			Helper.showDialogAlert('Le titre est obligatoire');
-			return;
-		}
-		Helper.hideDialog();
-		DlgMapEdit.dlgCallback(label, desc);
-	}
-
 };
 
 var DlgConfirm = {
@@ -86,9 +57,67 @@ var DlgConfirm = {
 
 			DlgConfirm.dlgCallback(true);
 		});
-
 		Helper.hideDialog();
+	}
+};
 
+var DlgMapEdit = {
+
+	dlgId : '#dlgMapEdit',
+	dlgCallback : null,
+
+	showDialog : function(callback, label, desc) {
+		DlgMapEdit.dlgCallback = callback;
+		var title = (label === undefined ? 'Créer une carte'
+				: 'Éditer la carte');
+		Helper.showDialog(title, DlgMapEdit.dlgId, DlgMapEdit.dialogCallback);
+		var formMapEdit = $('#formMapEdit');
+		$('#mapLabel', formMapEdit).val(label);
+		$('#mapDescription', formMapEdit).val(desc);
+	},
+
+	dialogCallback : function() {
+		var formMapEdit = $('#formMapEdit');
+		var label = $('#mapLabel', formMapEdit).val().trim();
+		var desc = $('#mapDescription', formMapEdit).val().trim();
+
+		if (label.length == 0) {
+			Helper.showDialogAlert('Le titre est obligatoire');
+			return;
+		}
+		Helper.hideDialog();
+		DlgMapEdit.dlgCallback(label, desc);
+	}
+};
+
+var DlgGroupEdit = {
+
+	dlgId : '#dlgGroupEdit',
+	dlgCallback : null,
+
+	showDialog : function(callback, id, label, desc) {
+		DlgGroupEdit.dlgCallback = callback;
+		var title = (id === undefined ? 'Créer un groupe' : 'Éditer le groupe');
+		Helper.showDialog(title, DlgGroupEdit.dlgId,
+				DlgGroupEdit.dialogCallback);
+		var formGroupEdit = $('#formGroupEdit');
+		$('#groupId', formGroupEdit).val(id);
+		$('#groupLabel', formGroupEdit).val(label);
+		$('#groupDescription', formGroupEdit).val(desc);
+	},
+
+	dialogCallback : function() {
+		var formGroupEdit = $('#formGroupEdit');
+		var id = $('#groupId', formGroupEdit).val().trim();
+		var label = $('#groupLabel', formGroupEdit).val().trim();
+		var desc = $('#groupDescription', formGroupEdit).val().trim();
+
+		if (label.length == 0) {
+			Helper.showDialogAlert('Le titre est obligatoire');
+			return;
+		}
+		Helper.hideDialog();
+		DlgGroupEdit.dlgCallback(id, label, desc);
 	}
 };
 
@@ -106,7 +135,7 @@ function OsmApiViewer(options) {
 
 		$('[data-toggle="tooltip"]', navBar).tooltip();
 
-		$('#mapNew', navBar).click(this.mapNew).removeClass('disabled');
+		$('#mapNew', navBar).removeClass('disabled');
 		$('#mapUpload', navBar).removeClass('disabled');
 
 		if (this.hasMap()) {
@@ -146,6 +175,12 @@ function OsmApiViewer(options) {
 		navTree.data('dirty', true);
 	};
 
+	// ==============
+	// Map edit
+
+	/**
+	 * 
+	 */
 	OsmApiViewer.prototype.mapNew = function(e) {
 
 		if (that.isMapDirty() && e !== true) {
@@ -172,7 +207,7 @@ function OsmApiViewer(options) {
 	OsmApiViewer.prototype.setMapLabel = function(label) {
 		navTree.data('label', label);
 		this.setMapDirty();
-		$('.header span', navTree).text( label );
+		$('.header span', navTree).text(label);
 	};
 
 	OsmApiViewer.prototype.getMapDescription = function() {
@@ -184,16 +219,49 @@ function OsmApiViewer(options) {
 		this.setMapDirty();
 	};
 
+	$('#mapNew', navBar).click(this.mapNew);
+	$('#mapEdit').click(
+			function() {
+				DlgMapEdit.showDialog(that.mapNewCallback, that.getMapLabel(),
+						that.getMapDescription());
+			});
+
+	// ==============
+	// Group edit
+
+	/**
+	 * 
+	 */
+	OsmApiViewer.prototype.groupEditCallback = function(id, label, desc) {
+
+		log('id:' + id + ', label:' + label);
+
+		if (id === undefined || id <= 0) {
+
+			$('> .tree > ul ', navTree).append( $('#tplGroup').html() );
+		} else {
+
+		}
+	};
+
+	$('#groupNew').click(function() {
+		DlgGroupEdit.showDialog(that.groupEditCallback);
+	});
+
+	$('.groupEdit').click(function() {
+		DlgGroupEdit.showDialog(that.groupEditCallback);
+	});
+
+	// ==============
+	// Construtor actions
+
 	var that = this;
 	this.mapId = options.mapId;
 
 	var navTree = $('#navTree');
 
-	this.guiState();
-
 	this.leafletMap = new OsmApiViewerMap(this.mapId);
 
-	$('#mapEdit').click(function(){
-		DlgMapEdit.showDialog(that.mapNewCallback, that.getMapLabel(), that.getMapDescription());		
-	});
+	this.guiState();
+
 };
