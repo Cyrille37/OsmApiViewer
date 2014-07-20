@@ -46,34 +46,42 @@ $app->get('/ping', function () use($app)
     echo JsonResponse::Ok();
 });
 
-$app->get('/install', function () use($app)
+/**
+ * 
+ */
+$app->get('/install(/:fakedata)', function ($fakedata=null) use($app,$db)
 {
-    
-    $app->contentType('application/json; charset=utf-8');
-    
+    //$db->createSimpleKeysValueDB($fakedata);
+
     $sqls = array(
-        'DROP TABLE IF EXISTS `keysvalue` ;',
-        'DROP TABLE IF EXISTS `items` ;',
-        'DROP TABLE IF EXISTS `groups` ;',
-        'CREATE TABLE `groups` (
+        'DROP TABLE IF EXISTS `queries` ;',
+        'DROP TABLE IF EXISTS `maps` ;',
+        'CREATE TABLE `maps` (
 					`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-					`guid` VARCHAR(36) UNIQUE NOT NULL,
-					`label` VARCHAR
-				);',
-        'CREATE TABLE `items` (
-					`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-					`groups_id` INTEGER NOT NULL,
+					`guid` VARCHAR(36) NOT NULL,
 					`label` VARCHAR,
-					FOREIGN KEY(groups_id) REFERENCES `groups`(id)
+					`description` BLOG,
+                    UNIQUE (`guid`)
 				);',
-        'CREATE TABLE `keysvalue` (
-					`items_id` KEY NOT NULL,
-					`key` VARCHAR NOT NULL,
-					`value` BLOB,
-					FOREIGN KEY(items_id) REFERENCES `items`(id)
-				);',
-        'CREATE UNIQUE INDEX uniqueKeyByItem ON `keysvalue`(`items_id` ASC, `key` ASC);'
+        'CREATE TABLE `queries` (
+					`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+					`maps_id` INTEGER NOT NULL,
+					`label` VARCHAR,
+					`description` VARCHAR,
+					`query_type` VARCHAR,
+					`query` BLOG,
+					`marker_name` VARCHAR,
+                    `marker_color` VARCHAR(7),
+                    `cluster_color` VARCHAR(7),
+                    FOREIGN KEY(maps_id) REFERENCES `maps`(id)
+				);'
     );
+
+    if (! empty($fakedata)) {
+        $sql_fakedata = array(
+        );
+        $sqls = array_merge($sqls, $sql_fakedata);
+    }
     
     ORM::get_db()->beginTransaction();
     foreach ($sqls as $sql) {
@@ -82,11 +90,8 @@ $app->get('/install', function () use($app)
     }
     ORM::get_db()->commit();
     
+    $app->contentType('application/json; charset=utf-8');
     echo JsonResponse::Ok();
-});
-
-$app->get('/map-icons', function () use($app)
-{
 });
 
 $app->hook(RestDB::HOOK_CREATE_BEFORE_SAVE, function ($tableName, $obj) use($app)
