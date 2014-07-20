@@ -31,13 +31,30 @@ class RestDB
 
     const HOOK_RESTDB_BEFORE_DELETE = 'restdb.before.delete';
 
-    public function __construct($dsn, $user = null, $password = null)
+    protected $config = array(
+        'route_prefix' => '/db',
+        'logging' => false
+    );
+
+    public function __construct($dsn, $user = null, $password = null, $options = array())
     {
         // ORM::configure('sqlite:' . __DIR__ . '/osmapiviewer.sqlite');
         if ($user != null)
             ORM::configure($dsn, $user, $password);
         else
             ORM::configure($dsn);
+        
+        foreach ($this->config as $k => $v)
+            if( isset($options[$k]) )
+                $this->config[$k] = $options[$k];
+
+        if ($this->config['logging']) {
+            ORM::configure('logging', $this->config['logging']);
+            ORM::configure('logger', function ($log_string, $query_time)
+            {
+                error_log($log_string . ' in ' . $query_time);
+            });
+        }
         ORM::configure('error_mode', PDO::ERRMODE_EXCEPTION);
         ORM::configure('return_result_sets', true); // returns result sets
     }
@@ -45,27 +62,45 @@ class RestDB
     public function registerRoutes(\Slim\Slim $app)
     {
         /**
-         * Retreive groups
+         * Retreive table rows
+         * :table = the table to select
+         * :field = optional - the name of the field to filter by -
+         *      if :fieldValue not present, :field is a :table primary key value
+         * :fieldValue = optional - the value of the field to filter by
+         * :childrenTable = optional - the children table to select, linked to table by field '<table>_id'.
          */
-        $app->get('/db/:tableName(/:field)(/:fieldValue)(/:childrenTable)', function ($tableName, $field = null, $fieldValue = null, $childrenTable = null) use($app)
+        $app->get($this->config['route_prefix'] . '/:table(/:field)(/:fieldValue)(/:childrenTable)', function ($table, $field = null, $fieldValue = null, $childrenTable = null) use($app)
         {
             $result = null;
+            /**
+             * Search for children table rows
+             */
             if ($childrenTable != null) {
-                $result = ORM::for_table($tableName)->where($tableName . '.' . $field, $fieldValue)
-                    ->join($childrenTable, array(
-                    $tableName . '.id',
-                    '=',
-                    $childrenTable . '.' . $tableName . '_id'
-                ))
-                    ->findArray();
+                
+                // Do not need a join...
+                // $result = ORM::for_table($table) ->select( $childrenTable . '.*')
+                //  ->where($table . '.' . $field, $fieldValue)
+                //  ->join($childrenTable, array($table . '.id', '=', $childrenTable . '.' . $table . '_id')) ->findArray();
+
+                $result = ORM::for_table($childrenTable)->where($childrenTable . '.' . $table . '_id', $fieldValue)
+                    ->find_array();
+            /**
+             * Search for table rows
+             */
             } elseif ($fieldValue != null) {
-                $result = ORM::for_table($tableName)->where($field, $fieldValue)
+                $result = ORM::for_table($table)->where($field, $fieldValue)
                     ->findArray();
+            /**
+             * Retreive a field by primary key
+             */
             } elseif ($field != null) {
-                $result = ORM::for_table($tableName)->findOne($field)
+                $result = ORM::for_table($table)->findOne($field)
                     ->asArray();
+            /**
+             * Return all table rows
+             */
             } else {
-                $result = ORM::forTable($tableName)->findArray();
+                $result = ORM::forTable($table)->findArray();
             }
             $app->contentType(self::HTTP_CONTENT_TYPE);
             echo JsonResponse::Ok($result);
@@ -74,7 +109,7 @@ class RestDB
         /**
          * Create a group
          */
-        $app->post('/db/:tableName', function ($tableName) use($app)
+        $app->post($this->config['route_prefix'] . '/:tableName', function ($tableName) use($app)
         {
             ORM::get_db()->beginTransaction();
             
@@ -95,7 +130,7 @@ class RestDB
         /**
          * Update a group
          */
-        $app->put('/db/:tableName/:id', function ($tableName, $id) use($app)
+        $app->put($this->config['route_prefix'] . '/db/:tableName/:id', function ($tableName, $id) use($app)
         {
             ORM::get_db()->beginTransaction();
             
@@ -118,7 +153,7 @@ class RestDB
         /**
          * Delete a group
          */
-        $app->delete('/db/:tableName/:id', function ($tableName, $id) use($app)
+        $app->delete($this->config['route_prefix'] . '/db/:tableName/:id', function ($tableName, $id) use($app)
         {
             ORM::get_db()->beginTransaction();
             
