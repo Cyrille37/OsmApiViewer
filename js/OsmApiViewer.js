@@ -234,21 +234,27 @@ function OsmApiViewer(options) {
 	 */
 	OsmApiViewer.prototype.groupEditCallback = function(id, label, desc) {
 
-		log('id:' + id + ', label:' + label);
+		log('groupEditCallback() id:' + id + ', label:' + label);
 
 		if (id === undefined || id <= 0) {
+			// New group
+			var o = $('#tplGroup').clone();
+			var id = 'group-'+getUniqueId() ;
+			o.attr('id', id).appendTo( $('> .tree > ul ', navTree) ).show();
+			o.find('.groupLabel').text(label).data('description', desc);
+			o.find('a.oav-groupEdit').click( function() {
+				var o = $('#'+id).find('.groupLabel');
+				DlgGroupEdit.showDialog(that.groupEditCallback, id, o.text(), o.data('description') );
+			});
 
-			$('> .tree > ul ', navTree).append( $('#tplGroup').html() );
 		} else {
-
+			// Group edit
+			var o = $('#'+id).find('.groupLabel');
+			o.text(label).data('description', desc); 
 		}
 	};
 
 	$('#groupNew').click(function() {
-		DlgGroupEdit.showDialog(that.groupEditCallback);
-	});
-
-	$('.groupEdit').click(function() {
 		DlgGroupEdit.showDialog(that.groupEditCallback);
 	});
 
@@ -263,5 +269,15 @@ function OsmApiViewer(options) {
 	this.leafletMap = new OsmApiViewerMap(this.mapId);
 
 	this.guiState();
-
+	
+	// ==================
+	// Misc.
+	
+	getUniqueId = function() {
+		var d = new Date();
+		return d.getMilliseconds() +'-'+getRandomInt(1000,9999) ;
+	}
+	getRandomInt = function(min, max) {
+		return Math.floor(Math.random() * (max - min)) + min;
+	}
 };
