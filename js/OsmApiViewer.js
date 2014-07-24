@@ -134,20 +134,24 @@ var DlgItemEdit = {
 	dlgId : '#dlgItemEdit',
 	dlgCallback : null,
 
-	showDialog : function(callback, id, label, desc, data) {
+	showDialog : function(callback, groupId, id, label, desc, data)
+	{
 		DlgItemEdit.dlgCallback = callback ;
 		var d = $(DlgItemEdit.dlgId);
 		var title = (id === undefined ? d.data('title-new') : d.data('title'));
 		Helper.showDialog(title, DlgItemEdit.dlgId, DlgItemEdit.dialogCallback);
 		var form = $('#formItemEdit');
 		$('#itemId', form).val(id);
+		$('#itemGroupId', form).val(groupId);
 		$('#itemLabel', form).val(label);
 		$('#itemDescription', form).val(desc);
 	},
 
-	dialogCallback : function() {
+	dialogCallback : function()
+	{
 		var form = $('#formItemEdit');
 		var id = $('#itemId', form).val().trim();
+		var groupId = $('#itemGroupId', form).val().trim();
 		var label = $('#itemLabel', form).val().trim();
 		var desc = $('#itemDescription', form).val().trim();
 
@@ -156,7 +160,7 @@ var DlgItemEdit = {
 			return;
 		}
 		Helper.hideDialog();
-		DlgItemEdit.dlgCallback(id, label, desc);
+		DlgItemEdit.dlgCallback(groupId, id, label, desc);
 	}
 
 };
@@ -287,7 +291,7 @@ function OsmApiViewer(options) {
 				DlgGroupEdit.showDialog(that.groupEditCallback, id, o.text(), o.data('description') );
 			});
 			o.find('a.oav-itemNew').click( function() {
-				DlgItemEdit.showDialog(that.itemEditCallback);
+				DlgItemEdit.showDialog(that.itemEditCallback, id);
 			});
 
 		} else {
@@ -304,7 +308,7 @@ function OsmApiViewer(options) {
 	// ==============
 	// Item edit
 
-	OsmApiViewer.prototype.itemEditCallback = function(id, label, desc) {
+	OsmApiViewer.prototype.itemEditCallback = function(groupId, id, label, desc) {
 		
 		log('itemEditCallback() id:' + id + ', label:' + label);
 
@@ -312,17 +316,18 @@ function OsmApiViewer(options) {
 			// New item
 			var o = $('#tplItem').clone();
 			var id = 'item-'+getUniqueId() ;
-			o.attr('id', id).appendTo( $('> .tree > ul ', navTree) ).show();
-			o.find('.label').text(label).data('description', desc);
+			var group = $('#'+groupId, navTree);
+			o.attr('id', id).appendTo( $('ul ', group) ).show();
+			o.find('.label').text(label).data('groupId', groupId ).data('description', desc);
 			o.find('a.oav-itemEdit').click( function() {
 				var o = $('#'+id).find('.label');
-				DlgItemEdit.showDialog(that.itemEditCallback, id, o.text(), o.data('description') );
+				DlgItemEdit.showDialog(that.itemEditCallback, groupId, id, o.text(), o.data('description') );
 			});
 
 		} else {
 			// item edit
 			var o = $('#'+id).find('.label');
-			o.text(label).data('description', desc); 
+			o.text(label).data('groupId', groupId ).data('description', desc);
 		}
 
 	};
