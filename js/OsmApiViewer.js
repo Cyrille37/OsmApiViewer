@@ -2,6 +2,8 @@
  * OsmApiViewer.js
  */
 
+"use strict";
+
 /**
  */
 function log(msg) {
@@ -68,8 +70,8 @@ var DlgMapEdit = {
 
 	showDialog : function(callback, label, desc) {
 		DlgMapEdit.dlgCallback = callback;
-		var title = (label === undefined ? 'Créer une carte'
-				: 'Éditer la carte');
+		var d = $(DlgMapEdit.dlgId);
+		var title = (label === undefined ? d.data('title-new') : d.data('title'));
 		Helper.showDialog(title, DlgMapEdit.dlgId, DlgMapEdit.dialogCallback);
 		var formMapEdit = $('#formMapEdit');
 		$('#mapLabel', formMapEdit).val(label);
@@ -90,6 +92,9 @@ var DlgMapEdit = {
 	}
 };
 
+/**
+ * Dialog box for Group edition
+ */
 var DlgGroupEdit = {
 
 	dlgId : '#dlgGroupEdit',
@@ -97,20 +102,20 @@ var DlgGroupEdit = {
 
 	showDialog : function(callback, id, label, desc) {
 		DlgGroupEdit.dlgCallback = callback;
-		var title = (id === undefined ? 'Créer un groupe' : 'Éditer le groupe');
-		Helper.showDialog(title, DlgGroupEdit.dlgId,
-				DlgGroupEdit.dialogCallback);
-		var formGroupEdit = $('#formGroupEdit');
-		$('#groupId', formGroupEdit).val(id);
-		$('#groupLabel', formGroupEdit).val(label);
-		$('#groupDescription', formGroupEdit).val(desc);
+		var d = $(DlgGroupEdit.dlgId);
+		var title = (id === undefined ? d.data('title-new') : d.data('title'));
+		Helper.showDialog(title, DlgGroupEdit.dlgId, DlgGroupEdit.dialogCallback);
+		var form = $('#formGroupEdit');
+		$('#groupId', form).val(id);
+		$('#groupLabel', form).val(label);
+		$('#groupDescription', form).val(desc);
 	},
 
 	dialogCallback : function() {
-		var formGroupEdit = $('#formGroupEdit');
-		var id = $('#groupId', formGroupEdit).val().trim();
-		var label = $('#groupLabel', formGroupEdit).val().trim();
-		var desc = $('#groupDescription', formGroupEdit).val().trim();
+		var form = $('#formGroupEdit');
+		var id = $('#groupId', form).val().trim();
+		var label = $('#groupLabel', form).val().trim();
+		var desc = $('#groupDescription', form).val().trim();
 
 		if (label.length == 0) {
 			Helper.showDialogAlert('Le titre est obligatoire');
@@ -119,6 +124,41 @@ var DlgGroupEdit = {
 		Helper.hideDialog();
 		DlgGroupEdit.dlgCallback(id, label, desc);
 	}
+};
+
+/**
+ * Dialog box for Item edition
+ */
+var DlgItemEdit = {
+
+	dlgId : '#dlgItemEdit',
+	dlgCallback : null,
+
+	showDialog : function(callback, id, label, desc, data) {
+		DlgItemEdit.dlgCallback = callback ;
+		var d = $(DlgItemEdit.dlgId);
+		var title = (id === undefined ? d.data('title-new') : d.data('title'));
+		Helper.showDialog(title, DlgItemEdit.dlgId, DlgItemEdit.dialogCallback);
+		var form = $('#formItemEdit');
+		$('#itemId', form).val(id);
+		$('#itemLabel', form).val(label);
+		$('#itemDescription', form).val(desc);
+	},
+
+	dialogCallback : function() {
+		var form = $('#formItemEdit');
+		var id = $('#itemId', form).val().trim();
+		var label = $('#itemLabel', form).val().trim();
+		var desc = $('#itemDescription', form).val().trim();
+
+		if (label.length == 0) {
+			Helper.showDialogAlert('Le titre est obligatoire');
+			return;
+		}
+		Helper.hideDialog();
+		DlgItemEdit.dlgCallback(id, label, desc);
+	}
+
 };
 
 /**
@@ -241,15 +281,18 @@ function OsmApiViewer(options) {
 			var o = $('#tplGroup').clone();
 			var id = 'group-'+getUniqueId() ;
 			o.attr('id', id).appendTo( $('> .tree > ul ', navTree) ).show();
-			o.find('.groupLabel').text(label).data('description', desc);
+			o.find('.label').text(label).data('description', desc);
 			o.find('a.oav-groupEdit').click( function() {
-				var o = $('#'+id).find('.groupLabel');
+				var o = $('#'+id).find('.label');
 				DlgGroupEdit.showDialog(that.groupEditCallback, id, o.text(), o.data('description') );
+			});
+			o.find('a.oav-itemNew').click( function() {
+				DlgItemEdit.showDialog(that.itemEditCallback);
 			});
 
 		} else {
 			// Group edit
-			var o = $('#'+id).find('.groupLabel');
+			var o = $('#'+id).find('.label');
 			o.text(label).data('description', desc); 
 		}
 	};
@@ -257,6 +300,32 @@ function OsmApiViewer(options) {
 	$('#groupNew').click(function() {
 		DlgGroupEdit.showDialog(that.groupEditCallback);
 	});
+
+	// ==============
+	// Item edit
+
+	OsmApiViewer.prototype.itemEditCallback = function(id, label, desc) {
+		
+		log('itemEditCallback() id:' + id + ', label:' + label);
+
+		if (id === undefined || id <= 0) {
+			// New item
+			var o = $('#tplItem').clone();
+			var id = 'item-'+getUniqueId() ;
+			o.attr('id', id).appendTo( $('> .tree > ul ', navTree) ).show();
+			o.find('.label').text(label).data('description', desc);
+			o.find('a.oav-itemEdit').click( function() {
+				var o = $('#'+id).find('.label');
+				DlgItemEdit.showDialog(that.itemEditCallback, id, o.text(), o.data('description') );
+			});
+
+		} else {
+			// item edit
+			var o = $('#'+id).find('.label');
+			o.text(label).data('description', desc); 
+		}
+
+	};
 
 	// ==============
 	// Construtor actions
@@ -272,12 +341,14 @@ function OsmApiViewer(options) {
 	
 	// ==================
 	// Misc.
-	
-	getUniqueId = function() {
+
+	var getUniqueId = function() {
 		var d = new Date();
 		return d.getMilliseconds() +'-'+getRandomInt(1000,9999) ;
-	}
-	getRandomInt = function(min, max) {
+	};
+
+	var getRandomInt = function(min, max) {
 		return Math.floor(Math.random() * (max - min)) + min;
-	}
+	};
+
 };

@@ -50,7 +50,7 @@
 		<div class="alert alert-warning" role="alert">...</div>
 	</div>
 
-	<div id="dlgMapEdit" class="modal-body-content" aria-hidden="true">
+	<div id="dlgMapEdit" class="modal-body-content" aria-hidden="true" data-title="Modifier la carte" data-title-new="Créer une carte">
 		<form role="form" id="formMapEdit">
 			<div class="form-group">
 				<label for="mapLabel">Titre de la carte:</label>
@@ -63,7 +63,7 @@
   		</form>
 	</div>
 
-	<div id="dlgGroupEdit" class="modal-body-content" aria-hidden="true">
+	<div id="dlgGroupEdit" class="modal-body-content" aria-hidden="true" data-title="Modifier le groupe" data-title-new="Créer un groupe">
 		<form role="form" id="formGroupEdit">
 			<input type="hidden" name="groupId" id="groupId" />
 			<div class="form-group">
@@ -77,13 +77,27 @@
   		</form>
 	</div>
 
+	<div id="dlgItemEdit" class="modal-body-content" aria-hidden="true" data-title="Modifier le jeux de données" data-title-new="Créer un jeux de données">
+		<form role="form" id="formItemEdit">
+			<input type="hidden" name="itemId" id="itemId" />
+			<div class="form-group">
+				<label for="itemLabel">Titre du jeux de données:</label>
+				<input type="text" class="form-control" name="itemLabel" id="itemLabel" placeholder="Titre du jeux de données">
+			</div>
+			<div class="form-group">
+				<label for="itemDescription">Description du jeux de données:</label>
+				<textarea rows="4" class="form-control" name="itemDescription" id="itemDescription" placeholder="Description du jeux de données"></textarea>
+			</div>
+  		</form>
+	</div>
+
 	<!-- Dialogs end -->
 
 	<!-- BEG Tree item templates -->
 
 	<ul style="display: none;">
-		<li id="tplGroup">
-			<span><i class="glyphicon glyphicon-folder-open"></i>&nbsp;<span class="groupLabel">A group label</span></span>
+		<li id="tplGroup" class="oav-group">
+			<span><i class="glyphicon glyphicon-folder-open"></i>&nbsp;<span class="label">A group label</span></span>
 			<a href="javascript:void(0)" class="oav-groupEdit" title="Éditer le groupe">
 				<i class="glyphicon glyphicon-cog"></i></a>
 			<a href="javascript:void(0)" class="oav-groupDelete" title="Supprimer le groupe (et son contenu)">
@@ -92,6 +106,17 @@
 				<i class="glyphicon glyphicon-plus-sign"></i></a>
 			<ul>
 			</ul>
+		</li>
+	</ul>
+
+	<ul style="display: none;">
+		<li id="tplItem" class="oav-item" data-queryType="xapi" data-query="node[highway=crossing]">
+			<span><a href="javascript:void(0)" class="oav-itemSelect">
+				<i class="glyphicon glyphicon-ok-circle"></i>&nbsp;<span class="label">A item label</span></a></span>
+			<a href="javascript:void(0)" class="oav-itemEdit">
+				<i class="glyphicon glyphicon-cog"></i></a>
+			<a href="javascript:void(0)" class="oav-itemDelete">
+				<i class="glyphicon glyphicon-trash"></i></a>
 		</li>
 	</ul>
 

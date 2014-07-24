@@ -46,11 +46,18 @@ body, html {
 	 */
 }
 
-/* the Tree for Data sélection */
+/* ==================================
+ * the Tree for Data edition & selection
+ */
 
 #navTree
 {
 
+}
+
+#navTree .label
+{
+	color: #000;
 }
 
 .tree .querying {
